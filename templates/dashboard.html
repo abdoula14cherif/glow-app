@@ -329,6 +329,12 @@ body.dark-mode .stat-info .val { color: #fff; }
     margin-bottom: 20px; /* Donne de l'air entre chaque bloc */
 }
 
+.balance-text {
+    font-weight: 800;
+    color: #28C76F; /* Un beau vert pour le solde */
+    margin-left: 5px;
+}
+
 </style>
 </head>
 <body>
@@ -399,7 +405,7 @@ body.dark-mode .stat-info .val { color: #fff; }
                 <i class="fa-regular fa-circle-user"></i> Profil
             </a>
             <div class="dropdown-item no-click">
-                <i class="fa-solid fa-wallet"></i> Solde: <span class="balance-text">2500 F</span>
+                <i class="fa-solid fa-wallet"></i> Solde: <span class="balance-text">{{ "{:,}".format(user.solde_parrainage or 0) }} XOF</span>
             </div>
             
             <div class="dropdown-divider"></div>

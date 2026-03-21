@@ -745,8 +745,8 @@ def dashboard_bloque():
             flash("Tous les champs sont requis.", "danger")
             return redirect(url_for("dashboard_bloque"))
 
-        if amount != 3000:
-            flash("Le montant d'activation est exactement 3000 FCFA.", "danger")
+        if amount != 3800:
+            flash("Le montant d'activation est exactement 3800 FCFA.", "danger")
             return redirect(url_for("dashboard_bloque"))
 
         # 🔒 Nettoyage numéro

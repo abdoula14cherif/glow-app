@@ -297,6 +297,38 @@ body.dark-mode .dropdown-menu {
 body.dark-mode .dropdown-item { color: #eee; }
 body.dark-mode .stat-info .val { color: #fff; }
 
+/* Espace entre les éléments du téléphone */
+.phone-group {
+    display: flex;
+    gap: 10px; /* Voilà l'espace qui manquait */
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.country-select {
+    width: 130px; /* Largeur fixe pour éviter que ça bouge */
+    padding: 12px 8px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    background: #F8FAFC;
+    outline: none;
+    font-size: 13px;
+}
+
+.phone-input {
+    flex: 1; /* Prend tout le reste de la place */
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    background: #F8FAFC;
+    outline: none;
+}
+
+/* Espacement global des sections */
+.stat-row, .form-card, .ref-section, .affiliate-card, .timeline {
+    margin-bottom: 20px; /* Donne de l'air entre chaque bloc */
+}
+
 </style>
 </head>
 <body>
@@ -418,24 +450,23 @@ body.dark-mode .stat-info .val { color: #fff; }
         <h4>Ajouter votre WhatsApp</h4>
         <form method="POST" action="/whatsapp-number" onsubmit="prepareWhatsappNumber()">
             <div class="phone-group">
-<div class="phone-group">
-            <select id="countryCode" class="country-select" required>
-                <option value="+228">🇹🇬 Togo (+228)</option>
-                <option value="+229">🇧🇯 Bénin (+229)</option>
-                <option value="+237">🇨🇲 Cameroun (+237)</option>
-                <option value="+242">🇨🇬 Congo Brazzaville (+242)</option>
-                <option value="+225">🇨🇮 Côte d’Ivoire (+225)</option>
-                <option value="+226">🇧🇫 Burkina Faso (+226)</option>
-                <option value="+223">🇲🇱 Mali (+223)</option>
-                <option value="+221">🇸🇳 Sénégal (+221)</option>
-                <option value="+243">🇨🇩 Congo Kinshasa (+243)</option>
-                <option value="+227">🇳🇪 Niger (+227)</option>
-                <option value="+241">🇬🇦 Gabon (+241)</option>
-            </select>
-                <input type="tel" id="phoneNumber" class="phone-input" placeholder="Numéro WhatsApp" required style="flex:1;">
+                <select id="countryCode" class="country-select" required>
+                    <option value="+228">🇹🇬 Togo (+228)</option>
+                    <option value="+229">🇧🇯 Bénin (+229)</option>
+                    <option value="+237">🇨🇲 Cameroun (+237)</option>
+                    <option value="+242">🇨🇬 Congo Brazzaville (+242)</option>
+                    <option value="+225">🇨🇮 Côte d’Ivoire (+225)</option>
+                    <option value="+226">🇧🇫 Burkina Faso (+226)</option>
+                    <option value="+223">🇲🇱 Mali (+223)</option>
+                    <option value="+221">🇸🇳 Sénégal (+221)</option>
+                    <option value="+243">🇨🇩 Congo Kinshasa (+243)</option>
+                    <option value="+227">🇳🇪 Niger (+227)</option>
+                    <option value="+241">🇬🇦 Gabon (+241)</option>
+                </select>
+                <input type="tel" id="phoneNumber" class="phone-input" placeholder="Numéro WhatsApp" required>
             </div>
             <input type="hidden" name="number" id="fullWhatsapp">
-            <button type="submit" class="btn-primary">Enregistrer</button>
+            <button type="submit" class="btn-primary" style="margin-top: 10px;">Enregistrer</button>
         </form>
     </div>
     {% endif %}

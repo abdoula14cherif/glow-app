@@ -3,135 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz du Lundi - NovaTrade</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>Quiz du Lundi - •Growth Affiliate</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root {
-            --primary: #4F46E5;
-            --bg-light: #F8FAFC;
-            --text-main: #1E293B;
-            --accent: #818CF8;
-        }
-
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg-light); color: var(--text-main); padding-bottom: 40px; }
-
-        /* Header avec barre de progression */
-        .quiz-header {
-            background: white; padding: 20px; border-bottom: 1px solid #E2E8F0;
-            position: sticky; top: 0; z-index: 100; text-align: center;
-        }
-        .quiz-header h1 { font-size: 18px; font-weight: 800; color: var(--primary); }
+        body { background: #F4F7FE; font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px; display: flex; justify-content: center; }
+        .card { background: white; width: 100%; max-width: 500px; padding: 30px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         
-        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+        .status-box { padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
+        .wait { background: #FFF4E5; color: #FF9F43; }
+        .done { background: #E8F7EE; color: #28C76F; }
+        
+        .question-block { margin-bottom: 20px; padding: 15px; border: 1px solid #F0F2FF; border-radius: 12px; background: #FBFCFE; }
+        .question-text { font-weight: 700; font-size: 14px; margin-bottom: 10px; display: block; color: #4B465C; }
+        
+        .input-ans { width: 100%; padding: 10px; border: 1px solid #DBDADE; border-radius: 8px; outline: none; transition: 0.3s; }
+        .input-ans:focus { border-color: #7367F0; background: #fff; }
 
-        /* Carte de Question */
-        .question-card {
-            background: white; border-radius: 20px; padding: 25px;
-            margin-bottom: 20px; border: 1px solid #E2E8F0;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
-        .q-number { 
-            display: inline-block; padding: 4px 12px; background: #EEF2FF; 
-            color: var(--primary); border-radius: 8px; font-size: 12px; 
-            font-weight: 800; margin-bottom: 15px; 
-        }
-        .q-text { font-size: 16px; font-weight: 700; margin-bottom: 20px; line-height: 1.5; }
-
-        /* Input de réponse */
-        .answer-input {
-            width: 100%; padding: 14px 20px; border-radius: 12px;
-            border: 2px solid #E2E8F0; font-size: 14px; font-weight: 600;
-            transition: all 0.3s; outline: none;
-        }
-        .answer-input:focus { border-color: var(--primary); background: #F5F3FF; }
-
-        /* Bouton Valider */
-        .btn-submit {
-            width: 100%; padding: 18px; border-radius: 15px; border: none;
-            background: var(--primary); color: white; font-size: 16px;
-            font-weight: 800; cursor: pointer; transition: 0.3s;
-            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
-        }
-        .btn-submit:hover { transform: translateY(-2px); background: #4338CA; }
-        .btn-submit:active { transform: scale(0.98); }
-
-        /* Overlay de verrouillage (Lundi 8h) */
-        .lock-overlay {
-            position: fixed; inset: 0; background: white; z-index: 1000;
-            display: none; flex-direction: column; align-items: center; 
-            justify-content: center; text-align: center; padding: 30px;
-        }
-        .lock-overlay i { font-size: 60px; color: #CBD5E1; margin-bottom: 20px; }
-
-        .points-info {
-            background: #F0FDF4; color: #166534; padding: 15px;
-            border-radius: 12px; margin-bottom: 25px; font-size: 13px;
-            font-weight: 600; display: flex; align-items: center; gap: 10px;
-        }
+        .btn-submit { background: #7367F0; color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; margin-top: 10px; }
+        .btn-back { display: block; text-align: center; margin-top: 20px; text-decoration: none; color: #7367F0; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <div id="lock-screen" class="lock-overlay">
-        <i class="fa fa-calendar-clock"></i>
-        <h2 style="font-weight: 800;">Quiz Verrouillé</h2>
-        <p style="color: #64748B; margin-top: 10px;">
-            Le quiz hebdomadaire est disponible uniquement le <br>
-            <strong>Lundi à partir de 08:00</strong>.
-        </p>
-        <a href="/" style="margin-top: 30px; color: var(--primary); font-weight: 700; text-decoration: none;">Retour au tableau de bord</a>
+<div class="card">
+    <div style="text-align: center; margin-bottom: 25px;">
+        <h2 style="color: #7367F0;">•Growth Affiliate</h2>
+        <small style="color: #A5A2AD; font-weight: 700; text-transform: uppercase;">Quiz hebdomadaire</small>
     </div>
 
-    <div class="quiz-header">
-        <h1><i class="fa fa-brain"></i> Quiz du Lundi</h1>
-    </div>
+    {% if not est_lundi %}
+        <div class="status-box wait">
+            <i class="fa-solid fa-lock" style="font-size: 30px; margin-bottom: 10px;"></i>
+            <h3>C'est pour Lundi !</h3>
+            <p style="font-size: 13px;">Le quiz de connaissances n'est disponible que les lundis. Préparez-vous bien !</p>
+        </div>
+        <a href="/dashboard" class="btn-back">Retour au tableau de bord</a>
 
-    <div class="container">
-        <div class="points-info">
-            <i class="fa fa-info-circle"></i>
-            <span>Chaque bonne réponse vous rapporte 5 points. Soyez précis !</span>
+    {% elif deja_fait %}
+        <div class="status-box done">
+            <i class="fa-solid fa-circle-check" style="font-size: 30px; margin-bottom: 10px;"></i>
+            <h3>Participation enregistrée</h3>
+            <p style="font-size: 13px;">Vous avez déjà répondu aux questions aujourd'hui et reçu vos points (<b>{{ deja_fait.points }} pts</b>).</p>
+        </div>
+        <a href="/dashboard" class="btn-back">Retour au tableau de bord</a>
+
+    {% else %}
+        <div style="margin-bottom: 20px;">
+            <p style="font-size: 14px; color: #666;">Répondez correctement pour gagner jusqu'à <b>25 points</b> (5 pts par question).</p>
         </div>
 
-        <form action="{{ url_for('questions_lundi') }}" method="POST">
+        <form method="POST">
             {% for q in questions %}
-            <div class="question-card">
-                <span class="q-number">Question {{ loop.index }}</span>
-                <p class="q-text">{{ q.question_text }}</p>
-                
-                <input type="text" 
-                       name="question_{{ q.id }}" 
-                       class="answer-input" 
-                       placeholder="Votre réponse ici..." 
-                       required>
-            </div>
+                <div class="question-block">
+                    <input type="hidden" name="question_ids" value="{{ q.id }}">
+                    <span class="question-text">{{ loop.index }}. {{ q.question_text }}</span>
+                    <input type="text" name="question_{{ q.id }}" class="input-ans" placeholder="Votre réponse..." required>
+                </div>
             {% endfor %}
-
-            <button type="submit" class="btn-submit">
-                SOUMETTRE MES RÉPONSES
-            </button>
+            
+            <button type="submit" class="btn-submit">Valider mes réponses</button>
         </form>
-    </div>
+    {% endif %}
 
-    <script>
-        function checkMondayAccess() {
-            const now = new Date();
-            const day = now.getDay(); // 1 = Lundi en JS
-            const hour = now.getHours();
+</div>
 
-            const isMonday = (day === 1);
-            const isTimeOk = (hour >= 8);
-
-            // Si ce n'est pas Lundi OU s'il est moins de 8h
-            if (!isMonday || !isTimeOk) {
-                document.getElementById('lock-screen').style.display = 'flex';
-            }
-        }
-
-        // Vérification immédiate
-        window.onload = checkMondayAccess;
-    </script>
 </body>
 </html>
 

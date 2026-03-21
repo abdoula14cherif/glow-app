@@ -1259,35 +1259,36 @@ from datetime import date
 @app.route("/taches/click-jeudi", methods=["GET", "POST"])
 def click_jeudi():
     user = get_logged_in_user()
+    aujourd_hui = date.today()
+    est_jeudi = aujourd_hui.weekday() == 3 # 3 = Jeudi
 
-    # Vérifier si c'est jeudi
-    if date.today().weekday() != 3:  # 0 = lundi, 3 = jeudi
-        return render_template("pas_jeudi.html", user=user)
-
-    # Vérifier si l'utilisateur a déjà fait le click cette semaine
-    debut_semaine = date.today() - timedelta(days=date.today().weekday())  # lundi de cette semaine
+    # Calcul du début de la semaine (Lundi)
+    debut_semaine = aujourd_hui - timedelta(days=aujourd_hui.weekday())
+    
+    # Vérifier si l'utilisateur a déjà cliqué cette semaine
     deja_fait = ClickJeudiReponse.query.filter(
         ClickJeudiReponse.user_id == user.id,
         ClickJeudiReponse.date >= debut_semaine
     ).first()
 
-    if deja_fait:
-        return render_template("deja_click.html", user=user)
-
     if request.method == "POST":
-        points = 20
-        user.points = user.points or 0  # corrige le None
-        user.points += points
-        db.session.commit()
+        # Sécurité : on vérifie encore si c'est jeudi et s'il ne l'a pas déjà fait
+        if est_jeudi and not deja_fait:
+            points = 20
+            user.points = (user.points or 0) + points
+            
+            # Enregistrer la tentative
+            nouveau_click = ClickJeudiReponse(user_id=user.id, points=points, date=aujourd_hui)
+            db.session.add(nouveau_click)
+            db.session.commit()
+            
+            flash(f"Félicitations ! +{points} points ajoutés.", "success")
+            return redirect(url_for("click_jeudi"))
 
-        # Enregistrer la tentative
-        click_reponse = ClickJeudiReponse(user_id=user.id, points=points, date=date.today())
-        db.session.add(click_reponse)
-        db.session.commit()
-
-        return render_template("resultat_click.html", points=points, user=user)
-
-    return render_template("click_jeudi.html", user=user)
+    return render_template("click_jeudi.html", 
+                           user=user, 
+                           est_jeudi=est_jeudi, 
+                           deja_fait=deja_fait)
 
 
 @app.route("/whatsapp-number", methods=["POST"])
@@ -1919,49 +1920,50 @@ def refuser_retrait(retrait_id):
 
 @app.route("/taches/questions-lundi", methods=["GET", "POST"])
 def questions_lundi():
-    user = get_logged_in_user()  # récupère l'utilisateur connecté
-
-    # Vérifier si aujourd'hui est lundi (0 = lundi)
-    if date.today().weekday() != 0:
-        return render_template("pas_lundi.html", user=user)
+    user = get_logged_in_user()
+    aujourd_hui = date.today()
+    est_lundi = aujourd_hui.weekday() == 0  # 0 = Lundi
 
     # Vérifier si l'utilisateur a déjà participé aujourd'hui
     deja_fait = QuestionReponse.query.filter_by(
         user_id=user.id,
-        date=date.today()
+        date=aujourd_hui
     ).first()
 
-    if deja_fait:
-        return render_template("deja_fait.html", user=user)
+    score_obtenu = None
+    questions = []
 
-    # Sélectionner 5 questions aléatoires
-    questions = Question.query.order_by(db.func.random()).limit(5).all()
+    # Si c'est lundi et pas encore fait, on charge les questions
+    if est_lundi and not deja_fait:
+        # On peut stocker les IDs en session pour éviter qu'elles changent au rafraîchissement
+        questions = Question.query.order_by(db.func.random()).limit(5).all()
 
-    if request.method == "POST":
+    if request.method == "POST" and est_lundi and not deja_fait:
         score = 0
-        for q in questions:
-            user_answer = request.form.get(f"question_{q.id}", "").strip().lower()
-            if user_answer == q.correct_answer.lower():
-                score += 5  # Chaque question correcte = 5 points
-
-        # Ajouter les points à l'utilisateur
-        user.points += score
-        db.session.commit()
-
-        # Enregistrer la tentative dans QuestionReponse
-        reponse = QuestionReponse(user_id=user.id, points=score, date=date.today())
+        # On récupère les questions envoyées par le formulaire caché pour vérifier
+        ids_envoyes = request.form.getlist('question_ids')
+        for q_id in ids_envoyes:
+            q = Question.query.get(q_id)
+            user_answer = request.form.get(f"question_{q_id}", "").strip().lower()
+            if q and user_answer == q.correct_answer.lower():
+                score += 5
+        
+        # Mise à jour de l'utilisateur
+        user.points = (user.points or 0) + score
+        
+        # Enregistrement de la réponse
+        reponse = QuestionReponse(user_id=user.id, points=score, date=aujourd_hui)
         db.session.add(reponse)
         db.session.commit()
+        
+        flash(f"Quiz terminé ! Vous avez gagné {score} points.", "success")
+        return redirect(url_for("questions_lundi"))
 
-        # Préparer le message
-        if score == 25:
-            message = "Bravo ! Vous avez répondu correctement à toutes les questions et gagné 25 points !"
-        else:
-            message = f"Vous avez obtenu {score} points sur 25."
-
-        return render_template("resultat_lundi.html", score=score, message=message, user=user)
-
-    return render_template("questions_lundi.html", questions=questions, user=user)
+    return render_template("questions_lundi.html", 
+                           user=user, 
+                           est_lundi=est_lundi, 
+                           deja_fait=deja_fait, 
+                           questions=questions)
 
 
 @app.route("/admin/users/activer/<username>")

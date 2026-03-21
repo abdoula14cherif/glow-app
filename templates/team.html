@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Réseau - Growth Affiliate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: #F4F7FE; color:#333; }
+
+        .topbar { 
+            display:flex; align-items:center; padding:15px 20px; 
+            background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:1000;
+        }
+        .back-btn { font-size:18px; color:#5D5FEF; margin-right: 15px; text-decoration: none; }
+        .topbar h1 { font-size:18px; font-weight:800; color:#333; }
+
+        .main { padding:20px; max-width: 550px; margin: 0 auto; }
+
+        /* SECTION LIEN DE PARRAINAGE */
+        .referral-box {
+            background: linear-gradient(135deg, #1A5CFF 0%, #0041E6 100%);
+            padding: 25px; border-radius: 24px; color: #fff; margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(26, 92, 255, 0.15);
+        }
+        .referral-box label { font-size: 11px; font-weight: 700; text-transform: uppercase; opacity: 0.8; }
+        .link-container {
+            background: rgba(255,255,255,0.15); padding: 12px 15px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: space-between; margin-top: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .link-text { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px; }
+        .copy-btn { background: #fff; color: #1A5CFF; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; transition: 0.3s; }
+        .copy-btn:active { transform: scale(0.95); }
+
+        /* BARRE DE RECHERCHE */
+        .search-wrapper {
+            position: relative; margin-bottom: 20px;
+        }
+        .search-wrapper i {
+            position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+            color: #A0AEC0; font-size: 14px;
+        }
+        .search-input {
+            width: 100%; padding: 15px 15px 15px 50px; border-radius: 16px;
+            border: 1.5px solid #F0F2FF; background: #fff; outline: none;
+            font-size: 14px; font-weight: 600; transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+        .search-input:focus { border-color: #1A5CFF; box-shadow: 0 4px 15px rgba(26, 92, 255, 0.1); }
+
+        /* ONGLETS (TABS) */
+        .tabs { display: flex; background: #fff; padding: 5px; border-radius: 14px; margin-bottom: 20px; border: 1px solid #F0F2FF; }
+        .tab-item { 
+            flex: 1; text-align: center; padding: 12px; font-size: 12px; font-weight: 700; 
+            color: #718096; cursor: pointer; border-radius: 10px; transition: 0.3s;
+        }
+        .tab-item.active { background: #F0F2FF; color: #1A5CFF; }
+
+        /* LISTE DES MEMBRES */
+        .member-list { display: none; animation: fadeIn 0.4s ease; }
+        .member-list.active { display: block; }
+
+        .member-card {
+            background: #fff; padding: 15px; border-radius: 18px; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: space-between;
+            border: 1px solid #F0F2FF; transition: 0.2s;
+        }
+        .member-info { display: flex; align-items: center; gap: 12px; }
+        .member-avatar { 
+            width: 42px; height: 42px; border-radius: 50%; background: #EEF2FF; 
+            display: flex; align-items: center; justify-content: center; 
+            color: #1A5CFF; font-weight: 800; font-size: 15px; border: 2px solid #fff; 
+        }
+        .member-details b { display: block; font-size: 14px; color: #333; }
+        .member-details span { font-size: 10px; color: #A0AEC0; font-weight: 600; }
+
+        .level-badge { background: #F0F2FF; color: #5D5FEF; font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: #A0AEC0; font-size: 13px; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <a href="/dashboard" class="back-btn"><i class="fa fa-arrow-left"></i></a>
+    <h1>Mon Réseau</h1>
+</div>
+
+<div class="main">
+
+    <div class="referral-box">
+        <label>Votre lien de parrainage</label>
+        <div class="link-container">
+            <span class="link-text" id="refLink">{{ referral_link }}</span>
+            <button class="copy-btn" onclick="copyLink()">COPIER</button>
+        </div>
+        <p style="font-size: 10px; margin-top: 10px; opacity: 0.8;">Invitez vos amis et boostez vos revenus sur 3 niveaux.</p>
+    </div>
+
+    <div class="search-wrapper">
+        <i class="fa fa-search"></i>
+        <input type="text" id="memberSearch" class="search-input" placeholder="Rechercher un membre par pseudo..." onkeyup="filterMembers()">
+    </div>
+
+    <div class="tabs">
+        <div class="tab-item active" onclick="showLevel(1, this)">Niv. 1 ({{ stats.level1 }})</div>
+        <div class="tab-item" onclick="showLevel(2, this)">Niv. 2 ({{ stats.level2 }})</div>
+        <div class="tab-item" onclick="showLevel(3, this)">Niv. 3 ({{ stats.level3 }})</div>
+    </div>
+
+    <div id="level1" class="member-list active">
+        {% if level1_users %}
+            {% for u in level1_users %}
+            <div class="member-card">
+                <div class="member-info">
+                    <div class="member-avatar">{{ u.username[0].upper() }}</div>
+                    <div class="member-details">
+                        <b class="username-text">{{ u.username }}</b>
+                        <span>Inscrit le {{ u.date_inscription.strftime('%d/%m/%Y') if u.date_inscription else 'Mars 2026' }}</span>
+                    </div>
+                </div>
+                <div class="level-badge">Direct</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state"><i class="fa fa-users" style="font-size: 30px; margin-bottom: 10px; opacity: 0.2;"></i><p>Aucun membre direct au Niveau 1</p></div>
+        {% endif %}
+    </div>
+
+    <div id="level2" class="member-list">
+        {% if level2_users %}
+            {% for u in level2_users %}
+            <div class="member-card">
+                <div class="member-info">
+                    <div class="member-avatar">{{ u.username[0].upper() }}</div>
+                    <div class="member-details">
+                        <b class="username-text">{{ u.username }}</b>
+                        <span>Parrain : {{ u.parrain }}</span>
+                    </div>
+                </div>
+                <div class="level-badge">Niv. 2</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state"><p>Aucun membre au Niveau 2</p></div>
+        {% endif %}
+    </div>
+
+    <div id="level3" class="member-list">
+        {% if level3_users %}
+            {% for u in level3_users %}
+            <div class="member-card">
+                <div class="member-info">
+                    <div class="member-avatar">{{ u.username[0].upper() }}</div>
+                    <div class="member-details">
+                        <b class="username-text">{{ u.username }}</b>
+                        <span>Parrain : {{ u.parrain }}</span>
+                    </div>
+                </div>
+                <div class="level-badge">Niv. 3</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state"><p>Aucun membre au Niveau 3</p></div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+    function showLevel(lvl, element) {
+        // Réinitialiser la recherche
+        document.getElementById('memberSearch').value = "";
+        
+        // Cacher toutes les listes et réinitialiser leur affichage
+        document.querySelectorAll('.member-list').forEach(list => {
+            list.classList.remove('active');
+            const cards = list.getElementsByClassName('member-card');
+            for(let card of cards) card.style.display = "";
+        });
+
+        // Retirer la classe active des onglets
+        document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+        
+        // Afficher la liste sélectionnée
+        document.getElementById('level' + lvl).classList.add('active');
+        element.classList.add('active');
+    }
+
+    function filterMembers() {
+        const input = document.getElementById('memberSearch');
+        const filter = input.value.toLowerCase();
+        const activeList = document.querySelector('.member-list.active');
+        const cards = activeList.getElementsByClassName('member-card');
+
+        for (let i = 0; i < cards.length; i++) {
+            const username = cards[i].querySelector('.username-text').innerText;
+            if (username.toLowerCase().indexOf(filter) > -1) {
+                cards[i].style.display = "";
+            } else {
+                cards[i].style.display = "none";
+            }
+        }
+    }
+
+    function copyLink() {
+        const link = document.getElementById('refLink').innerText;
+        navigator.clipboard.writeText(link).then(() => {
+            alert("Lien de parrainage copié avec succès !");
+        }).catch(err => {
+            console.error('Erreur lors de la copie : ', err);
+        });
+    }
+</script>
+
+</body>
+</html>
+

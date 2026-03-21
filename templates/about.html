@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>À propos - Growth Affiliate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: #F4F7FE; color:#333; line-height: 1.6; }
+
+        .topbar { 
+            display:flex; align-items:center; padding:15px 20px; 
+            background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:1000;
+        }
+        .back-btn { font-size:18px; color:#5D5FEF; margin-right: 15px; text-decoration: none; }
+        .topbar h1 { font-size:18px; font-weight:800; color:#333; }
+
+        .main { padding:20px; max-width: 550px; margin: 0 auto; }
+
+        /* HEADER INNOVANT */
+        .about-hero {
+            background: linear-gradient(135deg, #1A5CFF 0%, #0041E6 100%);
+            padding: 40px 25px; border-radius: 30px; color: #fff; margin-bottom: 30px;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .about-hero h2 { font-size: 24px; font-weight: 800; margin-bottom: 10px; z-index: 2; position: relative; }
+        .about-hero p { font-size: 13px; opacity: 0.9; z-index: 2; position: relative; }
+        
+        /* Décoration en arrière-plan (Style Tech) */
+        .about-hero::after {
+            content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+
+        /* SECTION VALEURS - GRILLE INNOVANTE */
+        .grid-values { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        
+        .value-card {
+            background: #fff; padding: 20px; border-radius: 24px;
+            border: 1px solid #F0F2FF; text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .value-card i { font-size: 24px; color: #1A5CFF; margin-bottom: 12px; }
+        .value-card h3 { font-size: 14px; font-weight: 800; margin-bottom: 5px; }
+        .value-card p { font-size: 11px; color: #718096; }
+
+        /* SECTION LONGUE - MISSION AFRIQUE */
+        .mission-box {
+            background: #fff; padding: 25px; border-radius: 24px;
+            border: 1px solid #F0F2FF; margin-bottom: 25px;
+        }
+        .mission-box h3 { font-size: 16px; font-weight: 800; color: #1A5CFF; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .mission-box p { font-size: 13px; color: #4A5568; margin-bottom: 15px; }
+
+        /* BADGE CONTINENT */
+        .africa-badge {
+            background: #FFF5F5; color: #E53E3E; padding: 10px 20px;
+            border-radius: 12px; display: inline-flex; align-items: center; gap: 10px;
+            font-size: 12px; font-weight: 700; width: 100%; justify-content: center;
+        }
+
+        .btn-contact {
+            display: block; width: 100%; background: #1A5CFF; color: #fff;
+            padding: 18px; border-radius: 16px; text-align: center;
+            text-decoration: none; font-weight: 800; font-size: 15px;
+            margin-top: 20px; box-shadow: 0 8px 20px rgba(26, 92, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <a href="/dashboard" class="back-btn"><i class="fa fa-arrow-left"></i></a>
+    <h1>À propos</h1>
+</div>
+
+<div class="main">
+    
+    <div class="about-hero">
+        <h2>L'avenir de l'affiliation en Afrique</h2>
+        <p>Plus qu'une plateforme, une communauté pour l'indépendance financière.</p>
+    </div>
+
+    <div class="grid-values">
+        <div class="value-card">
+            <i class="fa fa-shield-halved"></i>
+            <h3>Fiabilité</h3>
+            <p>Paiements sécurisés via Mobile Money.</p>
+        </div>
+        <div class="value-card">
+            <i class="fa fa-bolt"></i>
+            <h3>Rapidité</h3>
+            <p>Retraits traités en moins de 24h.</p>
+        </div>
+        <div class="value-card">
+            <i class="fa fa-users"></i>
+            <h3>Équipe</h3>
+            <p>Un système de parrainage à 3 niveaux.</p>
+        </div>
+        <div class="value-card">
+            <i class="fa fa-graduation-cap"></i>
+            <h3>Formation</h3>
+            <p>Apprenez le trading et l'e-commerce.</p>
+        </div>
+    </div>
+
+    <div class="mission-box">
+        <h3><i class="fa fa-lightbulb"></i> Notre Vision</h3>
+        <p>
+            <b>Growth Affiliate</b> est né d'une ambition simple : permettre à chaque jeune africain de monétiser son temps passé sur les réseaux sociaux. 
+        </p>
+        <p>
+            Nous croyons que le digital est le levier le plus puissant pour transformer l'économie locale. C'est pourquoi nous avons intégré les solutions de paiement locales (T-Money, Moov, MTN) pour briser les barrières bancaires.
+        </p>
+        
+        <div class="africa-badge">
+            <i class="fa fa-globe-africa"></i> Fièrement propulsé pour la jeunesse Africaine
+        </div>
+    </div>
+
+    <div class="mission-box" style="border-left: 5px solid #1A5CFF;">
+        <h3 style="color: #333;">Pourquoi nous ?</h3>
+        <ul style="list-style: none; font-size: 13px; color: #4A5568;">
+            <li style="margin-bottom: 10px;"><i class="fa fa-check-circle" style="color: #27AE60; margin-right: 8px;"></i> Accès exclusif à des APK Premium.</li>
+            <li style="margin-bottom: 10px;"><i class="fa fa-check-circle" style="color: #27AE60; margin-right: 8px;"></i> Récompenses quotidiennes (Lucky Wheel).</li>
+            <li style="margin-bottom: 10px;"><i class="fa fa-check-circle" style="color: #27AE60; margin-right: 8px;"></i> Support client disponible 7j/7.</li>
+        </ul>
+    </div>
+
+    <a href="/nous" class="btn-contact">Nous contacter sur WhatsApp</a>
+
+    <p style="text-align: center; font-size: 11px; color: #A0AEC0; margin-top: 30px; font-weight: 600;">
+        Growth Affiliate v2.1 — © 2026 
+    </p>
+</div>
+
+</body>
+</html>
+

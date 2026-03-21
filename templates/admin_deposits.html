@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaTrade - Gestion des Flux</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5D5FEF;
+            --success: #27AE60;
+            --danger: #EB5757;
+            --warning: #F2994A;
+            --dark: #1A202C;
+            --bg: #F4F7FE;
+            --white: #ffffff;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--dark); padding-bottom: 50px; }
+
+        /* Navigation */
+        .admin-nav {
+            background: var(--white); padding: 15px 40px; display: flex; 
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100;
+        }
+        .admin-nav h2 { font-weight: 800; font-size: 20px; color: var(--primary); }
+        .nav-menu { display: flex; gap: 20px; }
+        .nav-menu a { text-decoration: none; color: #718096; font-weight: 700; font-size: 14px; transition: 0.3s; }
+        .nav-menu a.active { color: var(--primary); }
+
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+
+        /* Cartes Statistiques */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card {
+            background: var(--white); padding: 20px; border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 15px;
+        }
+        .stat-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .stat-info h3 { font-size: 11px; color: #A0AEC0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-info p { font-size: 20px; font-weight: 800; }
+
+        /* Onglets */
+        .tabs-header { display: flex; gap: 10px; margin-bottom: 25px; }
+        .tab-trigger {
+            padding: 12px 24px; background: #E2E8F0; border: none; border-radius: 12px;
+            font-weight: 700; color: #718096; cursor: pointer; transition: 0.3s;
+        }
+        .tab-trigger.active { background: var(--primary); color: var(--white); box-shadow: 0 8px 15px rgba(93, 95, 239, 0.2); }
+
+        /* Tableaux et Contenu */
+        .tab-content { display: none; background: var(--white); border-radius: 24px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02); }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #F8FAFC; padding: 15px 20px; text-align: left; font-size: 11px; color: #A0AEC0; text-transform: uppercase; }
+        td { padding: 18px 20px; border-top: 1px solid #F1F5F9; font-size: 13px; font-weight: 600; color: #4A5568; }
+
+        /* Actions et Badges */
+        .badge { padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .bg-success-light { background: #E3FBE3; color: var(--success); }
+        .bg-danger-light { background: #FFF5F5; color: var(--danger); }
+        
+        .btn-group { display: flex; gap: 8px; }
+        .btn { padding: 8px 12px; border-radius: 10px; border: none; font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-check { background: var(--success); color: white; }
+        .btn-cross { background: var(--danger); color: white; }
+        .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+        /* Alertes Flash */
+        .alert { padding: 15px 20px; border-radius: 15px; margin-bottom: 25px; font-weight: 700; font-size: 14px; border: 1px solid transparent; }
+        .alert-success { background: #DEF7EC; color: #03543F; border-color: #BCF0DA; }
+        .alert-danger { background: #FDE8E8; color: #9B1C1C; border-color: #FBD5D5; }
+        .alert-warning { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <nav class="admin-nav">
+        <h2><i class="fa fa-layer-group"></i> NovaTrade Admin</h2>
+        <div class="nav-menu">
+            <a href="{{ url_for('admin_deposits') }}" class="active">Flux Financiers</a>
+            <a href="{{ url_for('admin_parrainage') }}">Utilisateurs</a>
+            <a href="/logout" style="color: var(--danger);"><i class="fa fa-sign-out-alt"></i></a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}"><i class="fa fa-info-circle"></i> {{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #EBF8FF; color: #3182CE;"><i class="fa fa-users"></i></div>
+                <div class="stat-info"><h3>Membres Actifs</h3><p>{{ total_actifs }}</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #FFF5F5; color: #E53E3E;"><i class="fa fa-user-clock"></i></div>
+                <div class="stat-info"><h3>En attente</h3><p>{{ total_inactifs }}</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #FFF9E6; color: #D97706;"><i class="fa fa-hourglass-half"></i></div>
+                <div class="stat-info"><h3>Dépôts récents</h3><p>{{ depots|length }}</p></div>
+            </div>
+        </div>
+
+        <div class="tabs-header">
+            <button class="tab-trigger active" onclick="openTab(event, 'deposits')">Dépôts ({{ depots|length }})</button>
+            <button class="tab-trigger" onclick="openTab(event, 'users')">Base Utilisateurs</button>
+            <button class="tab-trigger" onclick="openTab(event, 'retraits')">Historique Retraits</button>
+        </div>
+
+        <div id="deposits" class="tab-content active">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Mobile Money</th>
+                        <th>Montant</th>
+                        <th>Opérateur</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in depots %}
+                    <tr>
+                        <td><strong>{{ d.username_display }}</strong></td>
+                        <td><code style="background: #f1f5f9; padding: 3px 6px; border-radius: 5px;">{{ d.phone }}</code></td>
+                        <td style="color: var(--primary); font-weight: 800;">{{ d.montant }} XOF</td>
+                        <td><span class="badge bg-success-light">{{ d.operator }}</span></td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ url_for('valider_depot', depot_id=d.id) }}" class="btn btn-check" onclick="return confirm('Confirmer la validation du dépôt ?')">
+                                    <i class="fa fa-check"></i> Valider
+                                </a>
+                                <a href="{{ url_for('rejeter_depot', depot_id=d.id) }}" class="btn btn-cross" onclick="return confirm('Rejeter ce dépôt ?')">
+                                    <i class="fa fa-times"></i> Rejeter
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" style="text-align: center; padding: 40px; color: #A0AEC0;">Aucun dépôt en attente.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="users" class="tab-content">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pseudo</th>
+                        <th>Contact</th>
+                        <th>Parrain</th>
+                        <th>Statut</th>
+                        <th>Inscription</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td><strong>{{ u.username }}</strong></td>
+                        <td>{{ u.phone }}</td>
+                        <td>{{ u.parrain }}</td>
+                        <td>
+                            {% if u.premier_depot %}
+                            <span class="badge bg-success-light">Compte Actif</span>
+                            {% else %}
+                            <span class="badge bg-danger-light">Non Activé</span>
+                            {% endif %}
+                        </td>
+                        <td><small>{{ u.date_creation.strftime('%d/%m/%Y') }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div style="padding: 20px; text-align: center;">
+                {% if users_paginated.has_prev %}
+                    <a href="{{ url_for('admin_deposits', page=users_paginated.prev_num) }}" style="color: var(--primary); font-weight: 700; text-decoration: none;">Précédent</a>
+                {% endif %}
+                <span style="margin: 0 15px; font-weight: 800; color: #718096;">Page {{ users_paginated.page }}</span>
+                {% if users_paginated.has_next %}
+                    <a href="{{ url_for('admin_deposits', page=users_paginated.next_num) }}" style="color: var(--primary); font-weight: 700; text-decoration: none;">Suivant</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div id="retraits" class="tab-content">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Numéro</th>
+                        <th>Montant</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in retraits %}
+                    <tr>
+                        <td>{{ r.username_display }}</td>
+                        <td>{{ r.phone }}</td>
+                        <td style="color: var(--success); font-weight: 800;">+{{ r.montant }} XOF</td>
+                        <td>{{ r.date.strftime('%d/%m %H:%M') }}</td>
+                        <td><span class="badge bg-success-light">Terminé</span></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" style="text-align: center; padding: 40px; color: #A0AEC0;">Aucun retrait enregistré.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabContent, tabTrigger;
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].style.display = "none";
+                tabContent[i].classList.remove("active");
+            }
+            tabTrigger = document.getElementsByClassName("tab-trigger");
+            for (i = 0; i < tabTrigger.length; i++) {
+                tabTrigger[i].className = tabTrigger[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.className += " active";
+        }
+    </script>
+</body>
+</html>
+

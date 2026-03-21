@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Rewards - NovaTrade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --insta-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            --insta-bg: #ffffff;
+            --insta-dark: #262626;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: #fafafa; color: var(--insta-dark); }
+
+        .container { max-width: 450px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: white; }
+
+        /* Instagram Style Header */
+        .header {
+            padding: 15px 20px; border-bottom: 1px solid #dbdbdb;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; background: white; z-index: 10;
+        }
+        .logo-text { font-family: 'Arial', sans-serif; font-weight: 800; font-size: 20px; font-style: italic; }
+        
+        /* Reel Container */
+        .reel-box {
+            width: 100%; aspect-ratio: 9/16; background: #000;
+            position: relative; overflow: hidden;
+        }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* Overlays */
+        .lock-overlay {
+            position: absolute; inset: 0; background: rgba(255,255,255,0.95);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 40px; z-index: 5;
+        }
+        .lock-icon {
+            width: 80px; height: 80px; background: var(--insta-gradient);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 30px; margin-bottom: 20px;
+        }
+
+        /* Task Info */
+        .task-footer { padding: 20px; }
+        .reward-card {
+            background: #fff; border: 1px solid #dbdbdb; border-radius: 12px;
+            padding: 15px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .points-val { background: var(--insta-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; font-size: 18px; }
+
+        /* Custom Progress */
+        .insta-progress {
+            width: 100%; height: 3px; background: #dbdbdb; margin-top: 15px;
+            position: relative; border-radius: 2px; overflow: hidden;
+        }
+        #bar-fill { width: 0%; height: 100%; background: var(--insta-gradient); transition: 0.5s linear; }
+
+        .btn-insta {
+            width: 100%; margin-top: 20px; padding: 12px; border-radius: 8px;
+            border: none; background: #0095f6; color: white; font-weight: 700;
+            cursor: pointer; display: none; transition: 0.3s;
+        }
+        .btn-insta:active { opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="logo-text">Instagram</div>
+        <div style="font-size: 18px;"><i class="fa-regular fa-heart"></i></div>
+    </div>
+
+    <div class="reel-box">
+        <div id="lock-screen" class="lock-overlay" style="display: none;">
+            <div class="lock-icon"><i class="fa fa-lock"></i></div>
+            <h3 style="font-weight: 800;">Bientôt disponible</h3>
+            <p style="font-size: 13px; color: #8e8e8e; margin-top: 10px;">
+                Revenez le <strong>Vendredi à 08:00</strong> pour débloquer votre récompense hebdomadaire.
+            </p>
+        </div>
+
+        {% if user.last_instagram_date == current_date %}
+        <div class="lock-overlay">
+            <div class="lock-icon" style="background: #27AE60;"><i class="fa fa-check"></i></div>
+            <h3 style="font-weight: 800;">Déjà validé !</h3>
+            <p style="font-size: 13px; color: #8e8e8e; margin-top: 10px;">Vos 20 points ont été crédités. À vendredi prochain !</p>
+        </div>
+        {% endif %}
+
+        <div id="insta-player" style="display: none; width: 100%; height: 100%;">
+            <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0&modestbranding=1&rel=0" allow="autoplay"></iframe>
+        </div>
+    </div>
+
+    <div class="task-footer">
+        <div class="reward-card">
+            <div>
+                <p style="font-size: 11px; font-weight: 700; color: #8e8e8e; text-transform: uppercase;">Mission du jour</p>
+                <p style="font-weight: 700;">Visionner le Reel</p>
+            </div>
+            <div class="points-val">+20 PTS</div>
+        </div>
+
+        <div class="insta-progress">
+            <div id="bar-fill"></div>
+        </div>
+        <p id="timer-label" style="font-size: 12px; text-align: center; margin-top: 10px; color: #8e8e8e;">Vérification de l'accès...</p>
+
+        <button id="btn-claim" class="btn-insta" onclick="finishTask()">
+            RÉCUPÉRER LA RÉCOMPENSE
+        </button>
+    </div>
+</div>
+
+<script>
+    function initInstagram() {
+        const now = new Date();
+        const day = now.getDay(); // 5 = Vendredi
+        const hour = now.getHours();
+
+        const isFriday = (day === 5);
+        const isTimeOk = (hour >= 8);
+
+        const player = document.getElementById('insta-player');
+        const lock = document.getElementById('lock-screen');
+
+        if (isFriday && isTimeOk) {
+            {% if user.last_instagram_date != current_date %}
+            player.style.display = 'block';
+            runTimer();
+            {% endif %}
+        } else {
+            {% if user.last_instagram_date != current_date %}
+            lock.style.display = 'flex';
+            {% endif %}
+        }
+    }
+
+    function runTimer() {
+        let timeLeft = 35; // 35 secondes de visionnage
+        const bar = document.getElementById('bar-fill');
+        const label = document.getElementById('timer-label');
+        const btn = document.getElementById('btn-claim');
+
+        const countdown = setInterval(() => {
+            timeLeft--;
+            let progress = ((35 - timeLeft) / 35) * 100;
+            bar.style.width = progress + "%";
+            label.innerText = "Temps restant : " + timeLeft + "s";
+
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                label.innerText = "Vidéo validée !";
+                label.style.color = "#27AE60";
+                btn.style.display = "block";
+            }
+        }, 1000);
+    }
+
+    function finishTask() {
+        fetch('/instagram/complete')
+        .then(r => r.json())
+        .then(data => {
+            if(data.status === 'ok') {
+                alert("Super ! +20 points ajoutés à votre compte.");
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+
+    window.onload = initInstagram;
+</script>
+
+</body>
+</html>
+

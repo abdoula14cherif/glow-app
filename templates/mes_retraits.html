@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Retraits - Growth Affiliate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: #F4F7FE; color:#333; }
+
+        .topbar { 
+            display:flex; align-items:center; padding:15px 20px; 
+            background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:1000;
+        }
+        .back-btn { font-size:18px; color:#5D5FEF; margin-right: 15px; text-decoration: none; }
+        .topbar h1 { font-size:18px; font-weight:800; color:#333; }
+
+        .main { padding:20px; max-width: 550px; margin: 0 auto; }
+
+        /* RÉSUMÉ RAPIDE */
+        .summary-mini {
+            display: flex; gap: 10px; margin-bottom: 20px;
+        }
+        .mini-card {
+            flex: 1; background: #fff; padding: 15px; border-radius: 18px;
+            border: 1px solid #F0F2FF; text-align: center;
+        }
+        .mini-card span { display: block; font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 5px; }
+        .mini-card strong { font-size: 14px; color: #1A5CFF; }
+
+        /* LISTE DES RETRAITS */
+        .history-title { font-size: 15px; font-weight: 800; color: #4A5568; margin-bottom: 15px; }
+        
+        .transaction-card {
+            background: #fff; border-radius: 20px; padding: 16px; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            border: 1px solid #F0F2FF; transition: 0.3s;
+        }
+        .tx-left { display: flex; align-items: center; gap: 12px; }
+        .tx-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
+        }
+        .bg-pending { background: #FFF9F0; color: #F39C12; }
+        .bg-success { background: #E8F7EE; color: #27AE60; }
+        .bg-danger { background: #FFE5E5; color: #EB5757; }
+
+        .tx-info b { display: block; font-size: 14px; color: #333; }
+        .tx-info small { font-size: 11px; color: #AAA; font-weight: 600; }
+
+        .tx-right { text-align: right; }
+        .tx-amount { display: block; font-size: 15px; font-weight: 800; color: #333; }
+        
+        /* BADGES DE STATUT */
+        .status-badge {
+            font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;
+        }
+        .st-en_attente { background: #FEF5E7; color: #F39C12; }
+        .st-complete { background: #E8F7EE; color: #27AE60; }
+        .st-rejete { background: #FFE5E5; color: #EB5757; }
+
+        .empty-state {
+            text-align: center; padding: 40px 20px; color: #A0AEC0;
+        }
+        .empty-state i { font-size: 50px; margin-bottom: 15px; opacity: 0.3; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <a href="/dashboard" class="back-btn"><i class="fa fa-arrow-left"></i></a>
+    <h1>Historique des retraits</h1>
+</div>
+
+<div class="main">
+    
+    <div class="summary-mini">
+        <div class="mini-card">
+            <span>Demandes</span>
+            <strong>{{ retraits|length }}</strong>
+        </div>
+        <div class="mini-card">
+            <span>Statut</span>
+            <strong style="color: #27AE60;">Actif</strong>
+        </div>
+    </div>
+
+    <h3 class="history-title">Transactions Récentes</h3>
+
+    {% if retraits %}
+        {% for r in retraits %}
+        <div class="transaction-card">
+            <div class="tx-left">
+                <div class="tx-icon {% if r.statut == 'en_attente' %}bg-pending{% elif r.statut == 'complete' %}bg-success{% else %}bg-danger{% endif %}">
+                    <i class="fa {% if r.statut == 'en_attente' %}fa-clock{% elif r.statut == 'complete' %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                </div>
+                <div class="tx-info">
+                    <b>{{ r.service_name }}</b>
+                    <small>{{ r.date.strftime('%d %b, %H:%M') }}</small>
+                </div>
+            </div>
+            <div class="tx-right">
+                <span class="tx-amount">{{ "{:,}".format(r.montant) }} XOF</span>
+                <span class="status-badge st-{{ r.statut }}">{{ r.statut.replace('_', ' ') }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fa fa-folder-open"></i>
+            <p style="font-weight: 700;">Aucun retrait trouvé</p>
+            <p style="font-size: 12px;">Vos demandes de retrait apparaîtront ici.</p>
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 30px; text-align: center;">
+        <a href="/retrait" style="color: #1A5CFF; font-weight: 700; text-decoration: none; font-size: 14px;">
+            <i class="fa fa-plus-circle"></i> Effectuer un nouveau retrait
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

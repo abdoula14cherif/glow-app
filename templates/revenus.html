@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Revenus - Growth Affiliate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        /* STYLE IDENTIQUE AU DASHBOARD */
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: #F4F7FE; color:#333; }
+
+        .topbar { 
+            display:flex; align-items:center; padding:15px 20px; 
+            background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:1000;
+        }
+        .back-btn { font-size:18px; color:#5D5FEF; margin-right: 15px; text-decoration: none; }
+        .topbar h1 { font-size:18px; font-weight:800; color:#333; }
+
+        .main { padding:20px; max-width: 550px; margin: 0 auto; }
+
+        /* BANNIÈRE DE RÉSUMÉ */
+        .revenue-hero {
+            background: linear-gradient(135deg, #1A5CFF 0%, #0041E6 100%);
+            padding: 25px; border-radius: 24px; color: #fff; margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(26, 92, 255, 0.15);
+        }
+        .revenue-hero small { opacity: 0.8; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+        .revenue-hero h2 { font-size: 28px; font-weight: 800; margin: 5px 0; }
+
+        /* CARTES DE DÉTAILS */
+        .section-title { font-size: 15px; font-weight: 800; color: #4A5568; margin: 20px 0 12px 5px; }
+
+        .stat-card {
+            background: #fff; border-radius: 20px; padding: 18px; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid #F0F2FF;
+        }
+        .stat-left { display: flex; align-items: center; gap: 15px; }
+        .stat-circle {
+            width: 45px; height: 45px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
+        }
+        .stat-info .val { font-size: 16px; font-weight: 800; color: #333; }
+        .stat-info .lbl { font-size: 11px; color: #888; font-weight: 600; }
+
+        /* COULEURS DES ICÔNES */
+        .bg-yt { background: #FFECEC; color: #FF0000; }
+        .bg-tk { background: #F0F0F0; color: #000000; }
+        .bg-ig { background: #FFF0F5; color: #E1306C; }
+        .bg-ads { background: #E8F7EE; color: #2ECC71; }
+        .bg-wheel { background: #FEF5E7; color: #F39C12; }
+        .bg-team { background: #EEF2FF; color: #5D5FEF; }
+
+        .badge-points {
+            background: #F0F2FF; color: #5D5FEF; padding: 4px 10px; 
+            border-radius: 8px; font-size: 11px; font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <a href="/dashboard" class="back-btn"><i class="fa fa-arrow-left"></i></a>
+    <h1>Mes Revenus</h1>
+</div>
+
+<div class="main">
+    <div class="revenue-hero">
+        <small>Total Commissions</small>
+        <h2>{{ "{:,}".format(total_commission) }} XOF</h2>
+        <div style="margin-top: 15px; display: flex; gap: 10px;">
+            <div class="badge-points" style="background: rgba(255,255,255,0.2); color: #fff;">
+                <i class="fa fa-users"></i> Team: {{ team_total }}
+            </div>
+        </div>
+    </div>
+
+    <h3 class="section-title">Points par Activité</h3>
+
+    <div class="stat-card">
+        <div class="stat-left">
+            <div class="stat-circle bg-yt"><i class="fab fa-youtube"></i></div>
+            <div class="stat-info">
+                <div class="val">{{ points_youtube or 0 }} pts</div>
+                <div class="lbl">Revenus YouTube</div>
+            </div>
+        </div>
+        <i class="fa fa-chevron-right" style="color: #eee; font-size: 12px;"></i>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-left">
+            <div class="stat-circle bg-tk"><i class="fab fa-tiktok"></i></div>
+            <div class="stat-info">
+                <div class="val">{{ points_tiktok or 0 }} pts</div>
+                <div class="lbl">Revenus TikTok</div>
+            </div>
+        </div>
+        <i class="fa fa-chevron-right" style="color: #eee; font-size: 12px;"></i>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-left">
+            <div class="stat-circle bg-ig"><i class="fab fa-instagram"></i></div>
+            <div class="stat-info">
+                <div class="val">{{ points_instagram or 0 }} pts</div>
+                <div class="lbl">Revenus Instagram</div>
+            </div>
+        </div>
+        <i class="fa fa-chevron-right" style="color: #eee; font-size: 12px;"></i>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-left">
+            <div class="stat-circle bg-ads"><i class="fa fa-mouse-pointer"></i></div>
+            <div class="stat-info">
+                <div class="val">{{ points_ads or 0 }} pts</div>
+                <div class="lbl">Ads Clicking</div>
+            </div>
+        </div>
+        <i class="fa fa-chevron-right" style="color: #eee; font-size: 12px;"></i>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-left">
+            <div class="stat-circle bg-wheel"><i class="fa fa-dharmachakra"></i></div>
+            <div class="stat-info">
+                <div class="val">{{ points_spin or 0 }} pts</div>
+                <div class="lbl">Lucky Spin</div>
+            </div>
+        </div>
+        <i class="fa fa-chevron-right" style="color: #eee; font-size: 12px;"></i>
+    </div>
+
+    <h3 class="section-title">Équipe & Commissions</h3>
+
+    <div class="stat-card">
+        <div class="stat-left">
+            <div class="stat-circle bg-team"><i class="fa fa-users-viewfinder"></i></div>
+            <div class="stat-info">
+                <div class="val">{{ team_total }} Membres</div>
+                <div class="lbl">Taille totale de l'équipe</div>
+            </div>
+        </div>
+        <div class="badge-points">Actif</div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px; padding-bottom: 40px;">
+        <a href="/retrait" style="text-decoration: none; background: #1A5CFF; color: #fff; padding: 15px 40px; border-radius: 15px; font-weight: 800; display: inline-block; width: 100%; box-shadow: 0 5px 15px rgba(26, 92, 255, 0.3);">
+            Retirer mes revenus
+        </a>
+    </div>
+</div>
+
+</body>
+</html>
+

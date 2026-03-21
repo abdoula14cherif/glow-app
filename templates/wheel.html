@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Wheel - Growth Affiliate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: #F4F7FE; color:#333; overflow-x: hidden; }
+
+        .topbar { 
+            display:flex; align-items:center; padding:15px 20px; 
+            background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:1000;
+        }
+        .back-btn { font-size:18px; color:#5D5FEF; margin-right: 15px; text-decoration: none; }
+        .topbar h1 { font-size:18px; font-weight:800; color:#333; }
+
+        .main { padding:20px; max-width: 550px; margin: 0 auto; text-align: center; }
+
+        /* DESIGN DE LA ROUE */
+        .wheel-container {
+            position: relative; width: 320px; height: 320px; margin: 40px auto;
+        }
+        #canvas {
+            width: 100%; height: 100%; transform: rotate(0deg); transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
+        }
+        .pointer {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 40px; z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
+        }
+
+        /* CARD INFOS */
+        .info-card {
+            background: #fff; padding: 25px; border-radius: 24px;
+            border: 1px solid #F0F2FF; box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+            margin-top: 20px;
+        }
+        .info-card h2 { font-size: 22px; font-weight: 800; color: #1A5CFF; margin-bottom: 10px; }
+        .info-card p { font-size: 13px; color: #718096; line-height: 1.6; }
+
+        .btn-spin {
+            margin-top: 25px; width: 100%; background: linear-gradient(135deg, #1A5CFF 0%, #0041E6 100%);
+            color: #fff; padding: 18px; border: none; border-radius: 16px;
+            font-size: 18px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(26, 92, 255, 0.3); transition: 0.3s;
+        }
+        .btn-spin:disabled { background: #CBD5E0; box-shadow: none; cursor: not-allowed; }
+
+        /* MODAL RÉSULTAT */
+        #resultModal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #fff; padding: 40px 30px; border-radius: 30px; text-align: center;
+            width: 85%; max-width: 400px; animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+        .modal-content i { font-size: 60px; color: #FFD700; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <a href="/dashboard" class="back-btn"><i class="fa fa-arrow-left"></i></a>
+    <h1>Lucky Wheel</h1>
+</div>
+
+<div class="main">
+    <div class="info-card">
+        <h2>Tente ta chance !</h2>
+        <p>Tourne la roue chaque jour pour gagner des bonus allant jusqu'à <b>460 XOF</b> directement sur ton solde.</p>
+    </div>
+
+    <div class="wheel-container">
+        <img src="https://cdn-icons-png.flaticon.com/512/3585/3585834.png" class="pointer">
+        <canvas id="canvas" width="500" height="500"></canvas>
+    </div>
+
+    <button id="spinBtn" class="btn-spin" {% if already_spun %}disabled{% endif %}>
+        {% if already_spun %}Déjà utilisé aujourd'hui{% else %}LANCER LA ROUE{% endif %}
+    </button>
+</div>
+
+<div id="resultModal">
+    <div class="modal-content">
+        <i class="fa fa-trophy"></i>
+        <h2 id="winText">Félicitations !</h2>
+        <p id="winAmount" style="font-size: 24px; font-weight: 800; margin: 15px 0; color: #1A5CFF;"></p>
+        <button onclick="location.reload()" class="btn-spin" style="margin-top: 10px;">Génial !</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const spinBtn = document.getElementById('spinBtn');
+    const sectors = [0, 50, 80, 130, 150, 180, 200, 220, 250, 300, 340, 460];
+    const colors = ["#1A5CFF", "#FF7A00", "#1A5CFF", "#FF7A00", "#1A5CFF", "#FF7A00", "#1A5CFF", "#FF7A00", "#1A5CFF", "#FF7A00", "#1A5CFF", "#FF7A00"];
+    
+    const arc = Math.PI / (sectors.length / 2);
+    let startAngle = 0;
+
+    function drawWheel() {
+        sectors.forEach((value, i) => {
+            const angle = startAngle + i * arc;
+            ctx.fillStyle = colors[i];
+            ctx.beginPath();
+            ctx.moveTo(250, 250);
+            ctx.arc(250, 250, 250, angle, angle + arc, false);
+            ctx.fill();
+
+            // Texte
+            ctx.save();
+            ctx.fillStyle = "#fff";
+            ctx.translate(250, 250);
+            ctx.rotate(angle + arc / 2);
+            ctx.textAlign = "right";
+            ctx.font = "bold 30px Plus Jakarta Sans";
+            ctx.fillText(value, 230, 10);
+            ctx.restore();
+        });
+    }
+
+    drawWheel();
+
+    spinBtn.addEventListener('click', () => {
+        spinBtn.disabled = true;
+        
+        fetch('/wheel/spin', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const rewardIndex = sectors.indexOf(data.reward);
+                    // Calcul de la rotation pour tomber sur le bon secteur
+                    const extraDegree = 3600; // 10 tours
+                    const sectorDegree = (360 / sectors.length);
+                    const finalRotation = extraDegree + (360 - (rewardIndex * sectorDegree)) - (sectorDegree / 2);
+                    
+                    canvas.style.transform = `rotate(${finalRotation}deg)`;
+
+                    setTimeout(() => {
+                        document.getElementById('winAmount').innerText = "+ " + data.reward + " XOF";
+                        document.getElementById('resultModal').style.display = 'flex';
+                    }, 5500);
+                } else {
+                    alert(data.message);
+                }
+            });
+    });
+</script>
+
+</body>
+</html>
+

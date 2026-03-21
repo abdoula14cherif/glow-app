@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retrait - Growth Affiliate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: #F4F7FE; color:#333; }
+
+        .topbar { 
+            display:flex; align-items:center; padding:15px 20px; 
+            background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:1000;
+        }
+        .back-btn { font-size:18px; color:#5D5FEF; margin-right: 15px; text-decoration: none; }
+        .topbar h1 { font-size:18px; font-weight:800; color:#333; }
+
+        .main { padding:20px; max-width: 550px; margin: 0 auto; }
+
+        /* CARTE DE SOLDE */
+        .balance-card {
+            background: linear-gradient(135deg, #1A5CFF 0%, #0041E6 100%);
+            padding: 25px; border-radius: 24px; color: #fff; margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(26, 92, 255, 0.15);
+            text-align: center;
+        }
+        .balance-card small { opacity: 0.8; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .balance-card h2 { font-size: 32px; font-weight: 800; margin: 10px 0; }
+
+        /* FORMULAIRE */
+        .form-container {
+            background: #fff; padding: 25px; border-radius: 24px;
+            border: 1px solid #F0F2FF; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 13px; font-weight: 700; color: #4A5568; margin-bottom: 8px; }
+        
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-wrapper i { position: absolute; left: 15px; color: #5D5FEF; }
+        
+        .input-field {
+            width: 100%; padding: 14px 15px 14px 45px; border-radius: 12px;
+            border: 1.5px solid #E2E8F0; background: #F8FAFC; outline: none;
+            font-size: 15px; font-weight: 600; transition: 0.3s;
+        }
+        .input-field:focus { border-color: #5D5FEF; background: #fff; }
+
+        .select-field {
+            width: 100%; padding: 14px 15px; border-radius: 12px;
+            border: 1.5px solid #E2E8F0; background: #F8FAFC; outline: none;
+            font-size: 15px; font-weight: 600; appearance: none;
+        }
+
+        /* INFOS RETRAIT */
+        .info-box {
+            background: #FFF9F0; border: 1px solid #FFE4BC;
+            padding: 15px; border-radius: 15px; margin-bottom: 20px;
+        }
+        .info-item { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+        .info-item span { color: #845D1F; font-weight: 600; }
+        .info-item strong { color: #B45309; }
+
+        .btn-withdraw {
+            width: 100%; background: #1A5CFF; color: #fff; padding: 16px;
+            border: none; border-radius: 14px; font-size: 16px; font-weight: 800;
+            cursor: pointer; box-shadow: 0 8px 15px rgba(26, 92, 255, 0.25);
+            transition: 0.3s;
+        }
+        .btn-withdraw:active { transform: scale(0.98); }
+
+        /* FLASH MESSAGES */
+        .alert {
+            padding: 15px; border-radius: 12px; margin-bottom: 20px;
+            font-size: 13px; font-weight: 600; text-align: center;
+        }
+        .alert-danger { background: #FFE5E5; color: #D63031; border: 1px solid #FFBDBD; }
+        .alert-success { background: #E8F7EE; color: #27AE60; border: 1px solid #B7EBCA; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <a href="/dashboard" class="back-btn"><i class="fa fa-arrow-left"></i></a>
+    <h1>Demande de retrait</h1>
+</div>
+
+<div class="main">
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="balance-card">
+        <small>Solde Retirable (Parrainage)</small>
+        <h2>{{ "{:,}".format(stats.commissions_total) }} XOF</h2>
+    </div>
+
+    <div class="form-container">
+        <form method="POST">
+            <div class="input-group">
+                <label>Montant à retirer (XOF)</label>
+                <div class="input-wrapper">
+                    <i class="fa fa-money-bill-wave"></i>
+                    <input type="number" name="montant" class="input-field" placeholder="Ex: 5000" required min="4000">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Méthode de paiement</label>
+                <select name="payment_method" class="select-field" required>
+                    <option value="TMoney">T-Money (Togo)</option>
+                    <option value="Moov Money">Moov Money (Togo)</option>
+                    <option value="MTN Money">MTN Money</option>
+                    <option value="Orange Money">Orange Money</option>
+                </select>
+            </div>
+
+            <div class="info-box">
+                <div class="info-item">
+                    <span>Montant Minimum :</span>
+                    <strong>4,000 XOF</strong>
+                </div>
+                <div class="info-item">
+                    <span>Frais de retrait fixe :</span>
+                    <strong>500 XOF</strong>
+                </div>
+                <div class="info-item" style="margin-top: 5px; border-top: 1px dashed #FFE4BC; padding-top: 5px;">
+                    <span>Total à déduire :</span>
+                    <strong id="totalDisplay">0 XOF</strong>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-withdraw">Confirmer le retrait</button>
+        </form>
+    </div>
+
+    <p style="text-align: center; color: #888; font-size: 11px; margin-top: 25px; font-weight: 500;">
+        <i class="fa fa-shield-alt"></i> Les retraits sont traités dans un délai de 24h.
+    </p>
+</div>
+
+<script>
+    // Calcul dynamique du total pour l'utilisateur
+    const montantInput = document.querySelector('input[name="montant"]');
+    const totalDisplay = document.getElementById('totalDisplay');
+    const FRAIS = 500;
+
+    montantInput.addEventListener('input', function() {
+        const val = parseFloat(this.value) || 0;
+        if (val > 0) {
+            totalDisplay.innerText = (val + FRAIS).toLocaleString() + " XOF";
+        } else {
+            totalDisplay.innerText = "0 XOF";
+        }
+    });
+</script>
+
+</body>
+</html>
+

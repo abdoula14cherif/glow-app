@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APK Premium - Growth Affiliate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: #F4F7FE; color:#333; }
+
+        .topbar { 
+            display:flex; align-items:center; padding:15px 20px; 
+            background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:1000;
+        }
+        .back-btn { font-size:18px; color:#5D5FEF; margin-right: 15px; text-decoration: none; }
+        .topbar h1 { font-size:18px; font-weight:800; color:#333; }
+
+        .main { padding:20px; max-width: 550px; margin: 0 auto; }
+
+        /* HEADER APK */
+        .apk-header {
+            background: linear-gradient(135deg, #1A5CFF 0%, #0041E6 100%);
+            padding: 25px; border-radius: 24px; color: #fff; margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(26, 92, 255, 0.15);
+            text-align: center;
+        }
+        .apk-header i { font-size: 40px; margin-bottom: 10px; opacity: 0.9; }
+        .apk-header h2 { font-size: 20px; font-weight: 800; }
+        .apk-header p { font-size: 12px; opacity: 0.8; margin-top: 5px; }
+
+        /* LISTE DES APKS */
+        .apk-list { display: grid; gap: 15px; }
+        
+        .apk-card {
+            background: #fff; border-radius: 20px; padding: 15px;
+            display: flex; align-items: center; justify-content: space-between;
+            border: 1px solid #F0F2FF; box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            transition: 0.3s;
+        }
+        .apk-card:active { transform: scale(0.98); }
+
+        .apk-info { display: flex; align-items: center; gap: 15px; }
+        
+        /* Simulation d'icônes d'apps */
+        .app-icon {
+            width: 55px; height: 55px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Couleurs spécifiques aux apps */
+        .icon-netflix { background: #E50914; }
+        .icon-chat { background: #0084FF; }
+        .icon-capcut { background: #000000; }
+        .icon-default { background: #5D5FEF; }
+
+        .apk-details b { display: block; font-size: 15px; color: #333; }
+        .apk-details span { font-size: 11px; color: #888; font-weight: 600; }
+
+        .btn-download {
+            background: #F0F2FF; color: #1A5CFF;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; font-size: 16px; transition: 0.3s;
+        }
+        .btn-download:hover { background: #1A5CFF; color: #fff; }
+
+        .badge-premium {
+            background: #FFF9F0; color: #F39C12;
+            padding: 4px 8px; border-radius: 6px;
+            font-size: 9px; font-weight: 800; text-transform: uppercase;
+            margin-top: 4px; display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <a href="/dashboard" class="back-btn"><i class="fa fa-arrow-left"></i></a>
+    <h1>Catalogue APK</h1>
+</div>
+
+<div class="main">
+    
+    <div class="apk-header">
+        <i class="fa fa-rocket"></i>
+        <h2>Applications Premium</h2>
+        <p>Téléchargez gratuitement vos outils et divertissements sans publicités.</p>
+    </div>
+
+    <div class="apk-list">
+        {% for apk in apk_files %}
+        <div class="apk-card">
+            <div class="apk-info">
+                <div class="app-icon 
+                    {% if 'Netflix' in apk.name %}icon-netflix
+                    {% elif 'Chat' in apk.name %}icon-chat
+                    {% elif 'CapCut' in apk.name %}icon-capcut
+                    {% else %}icon-default{% endif %}">
+                    
+                    {% if 'Netflix' in apk.name %}<i class="fa fa-play"></i>
+                    {% elif 'Chat' in apk.name %}<i class="fa fa-comment"></i>
+                    {% elif 'CapCut' in apk.name %}<i class="fa fa-video"></i>
+                    {% else %}<i class="fa fa-box"></i>{% endif %}
+                </div>
+                
+                <div class="apk-details">
+                    <b>{{ apk.name }}</b>
+                    <span>{{ apk.filename }}</span>
+                    <br>
+                    <span class="badge-premium">Premium Unlocked</span>
+                </div>
+            </div>
+
+            <a href="{{ apk.link }}" target="_blank" class="btn-download">
+                <i class="fa fa-download"></i>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div style="margin-top: 30px; background: #fff; padding: 20px; border-radius: 20px; border: 1px dashed #CBD5E0; text-align: center;">
+        <i class="fa fa-info-circle" style="color: #5D5FEF; margin-bottom: 10px;"></i>
+        <p style="font-size: 11px; color: #718096; line-height: 1.5;">
+            Toutes les applications sont testées et garanties sans virus. Assurez-vous d'autoriser l'installation de "sources inconnues" dans vos paramètres Android.
+        </p>
+    </div>
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Growth Affiliate</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="icon" href="/static/images/lu.png" type="image/png">
+<style>
+    /* DESIGN GROWTH AFFILIATE - STYLE BIMA */
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: #F4F7FE; color:#333; overflow-x:hidden; }
+
+    /* TOPBAR */
+    .topbar { 
+        display:flex; justify-content:space-between; align-items:center; padding:15px 20px; 
+        background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:1000;
+    }
+    .topbar .menu-toggle { font-size:22px; cursor:pointer; color:#5D5FEF; }
+    .topbar .brand-name { font-weight: 800; color: #5D5FEF; font-size: 18px; }
+
+    /* SIDEBAR */
+    .sidebar {
+        position: fixed; left: -280px; top: 0; height: 100%; width: 280px;
+        background: #fff; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        padding-top: 30px; z-index: 1100; border-right: 1px solid #eee; overflow-y: auto;
+    }
+    .sidebar.active { left: 0; }
+    .sidebar a {
+        display: block; padding: 14px 25px; font-size: 15px; color: #666;
+        text-decoration: none; font-weight: 600; transition: 0.3s;
+    }
+    .sidebar a i { margin-right: 12px; color: #5D5FEF; width: 20px; text-align: center; }
+    .sidebar a:hover { background: #F8FAFC; color: #5D5FEF; }
+    .sub-menu { display:none; background:#FBFCFE; padding-left:20px; }
+    .rotate { transform: rotate(180deg); transition: 0.3s; }
+
+    /* OVERLAY */
+    .overlay { position:fixed; top:0; left:0; height:100%; width:100%; background:rgba(0,0,0,0.3); opacity:0; visibility:hidden; transition:0.3s; z-index:1050;}
+    .overlay.active { opacity:1; visibility:visible; }
+
+    /* MAIN CONTENT */
+    .main { padding:20px; max-width: 550px; margin: 0 auto; }
+
+    /* BANNIÈRE BLEUE - STYLE GROWTH */
+    .hero-card { 
+        background: linear-gradient(135deg, #1A5CFF 0%, #0041E6 100%); 
+        padding:25px; border-radius:24px; color:#fff; margin-bottom:20px;
+        box-shadow: 0 10px 20px rgba(26, 92, 255, 0.15);
+    }
+    .hero-card h2 { font-size:20px; font-weight:800; margin-bottom:8px; }
+    .hero-card p { font-size:12.5px; opacity: 0.85; line-height:1.5; margin-bottom: 20px;}
+    
+    .hero-stats { display: flex; gap: 20px; }
+    .hero-stat-item { display: flex; align-items: center; gap: 8px; }
+    .hero-stat-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .bg-red { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
+    .bg-green { background: rgba(46, 213, 115, 0.2); color: #2ed573; }
+    .hero-stat-info span { display: block; font-size: 11px; font-weight: 600; opacity: 0.8; }
+    .hero-stat-info strong { font-size: 14px; font-weight: 700; }
+
+    /* CARTES DE GAINS - STYLE ÉPURÉ */
+    .stat-row {
+        background: #fff; border-radius: 20px; padding: 18px; margin-bottom: 12px;
+        display: flex; align-items: center; justify-content: space-between;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid #F0F2FF;
+    }
+    .stat-left { display: flex; align-items: center; gap: 15px; }
+    .stat-circle {
+        width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid #eee;
+        display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .stat-info .val { font-size: 17px; font-weight: 800; color: #333; }
+    .stat-info .lbl { font-size: 12px; color: #888; font-weight: 600; }
+    .trend-icon { color: #2ecc71; font-size: 12px; opacity: 0.7; }
+
+    /* Couleurs des cercles */
+    .c-green { color: #2ecc71; background: #e8f7ee; border-color: #d1f2e1; }
+    .c-orange { color: #f39c12; background: #fef5e7; border-color: #fdebd0; }
+    .c-blue { color: #3498db; background: #ebf5fb; border-color: #d6eaf8; }
+    .c-purple { color: #9b59b6; background: #f4ecf7; border-color: #ebdef0; }
+
+    /* WHATSAPP CARD */
+    .form-card { background: #fff; padding: 20px; border-radius: 24px; margin-bottom: 20px; border: 1px solid #E0E7FF; }
+    .form-card h4 { font-size: 15px; color: #1A5CFF; margin-bottom: 15px; }
+    .phone-group { display: flex; gap: 8px; margin-bottom: 12px; }
+    .country-select, .phone-input { padding: 12px; border-radius: 12px; border: 1px solid #eee; font-size: 14px; background: #F8FAFC; outline: none; }
+    .btn-primary { width: 100%; background: #1A5CFF; color: #fff; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+
+    /* REFERRAL SECTION */
+    .ref-section { background: #fff; padding: 20px; border-radius: 20px; text-align: center; border: 1px solid #eee; margin-bottom: 20px; }
+    .ref-link { background: #F4F7FE; padding: 12px; border-radius: 12px; font-size: 11px; font-weight: 700; margin: 15px 0; color: #5D5FEF; word-break: break-all; }
+    .btn-copy { width: 100%; padding: 12px; border: none; border-radius: 12px; background: #FF7A00; color: #fff; font-weight: 700; cursor: pointer; }
+
+    /* HORAIRE */
+    .schedule-card { background:#fff; border-radius:24px; padding:20px; border:1px solid #eee; }
+    .schedule-card h3 { font-size:15px; font-weight:800; margin-bottom:15px; }
+    .schedule-item { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom: 1px solid #f9f9f9; }
+    .schedule-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; }
+    .schedule-day { font-size:11px; font-weight:700; color:#1A5CFF; background:#F0F2FF; padding:4px 10px; border-radius:8px; }
+
+    footer { text-align:center; padding: 30px 0; color:#AAA; font-size:12px; font-weight: 600; }
+
+    /* TIME TABLE STYLE TIMELINE */
+    .activity-container {
+        background: #fff;
+        border-radius: 24px;
+        padding: 25px;
+        margin-bottom: 20px;
+        border: 1px solid #F0F2FF;
+    }
+    .activity-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .activity-header h3 { font-size: 16px; font-weight: 800; }
+    
+    .timeline { position: relative; padding-left: 30px; }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 5px;
+        top: 5px;
+        bottom: 5px;
+        width: 2px;
+        border-left: 2px dotted #E2E8F0;
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    .timeline-dot {
+        position: absolute;
+        left: -30px;
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        background: #CBD5E0;
+        z-index: 2;
+    }
+    .timeline-content b { display: block; font-size: 14px; color: #333; margin-bottom: 2px; }
+    .timeline-content span { display: block; font-size: 11px; color: #A0AEC0; font-weight: 600; }
+    .timeline-time { font-size: 12px; font-weight: 700; color: #4A5568; }
+
+    /* Couleurs personnalisées pour la timeline */
+    .dot-purple { background: #9F7AEA; box-shadow: 0 0 0 4px rgba(159, 122, 234, 0.2); }
+    .dot-gray { background: #718096; box-shadow: 0 0 0 4px rgba(113, 128, 150, 0.2); }
+    .dot-red { background: #F56565; box-shadow: 0 0 0 4px rgba(245, 101, 101, 0.2); }
+    .dot-green { background: #48BB78; box-shadow: 0 0 0 4px rgba(72, 187, 120, 0.2); }
+    .dot-orange { background: #ED8936; box-shadow: 0 0 0 4px rgba(237, 137, 54, 0.2); }
+
+    .affiliate-card {
+        background: #fff;
+        border-radius: 24px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #F0F2FF;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+    .affiliate-card h3 {
+        font-size: 16px;
+        font-weight: 800;
+        color: #333;
+        margin-bottom: 15px;
+        padding-left: 5px;
+    }
+    .level-row {
+        background: #F8FAFC;
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .level-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: #4A5568;
+    }
+    .level-count {
+        font-size: 15px;
+        font-weight: 800;
+        color: #1A5CFF;
+    }
+
+/* Positionnement du bouton utilisateur */
+.user-menu-container {
+    position: relative;
+    cursor: pointer;
+}
+
+.user-icon-bg {
+    background: #F0F2FF;
+    padding: 8px;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5D5FEF;
+    transition: 0.3s;
+}
+
+/* Style du Dropdown */
+.dropdown-menu {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 200px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    display: none; /* Caché par défaut */
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+    border: 1px solid #eee;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header {
+    padding: 12px 15px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #A5A2AD;
+    text-transform: uppercase;
+}
+
+.dropdown-item {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #4B465C;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.dropdown-item:hover:not(.no-click) {
+    background-color: #F8F7FA;
+    color: #7367F0;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: #eee;
+    margin: 5px 0;
+}
+
+.balance-text {
+    font-weight: 800;
+    color: #28C76F;
+}
+
+.logout-link {
+    color: #EA5455 !important;
+}
+
+/* Style spécifique pour le Dark Mode Toggle */
+.mode-toggle {
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+/* Classe pour afficher le menu */
+.show {
+    display: flex !important;
+}
+
+body.dark-mode {
+    background: #121212;
+    color: #ffffff;
+}
+body.dark-mode .topbar, 
+body.dark-mode .sidebar, 
+body.dark-mode .stat-row,
+body.dark-mode .dropdown-menu {
+    background: #1e1e1e;
+    color: #ffffff;
+    border-color: #333;
+}
+body.dark-mode .dropdown-item { color: #eee; }
+body.dark-mode .stat-info .val { color: #fff; }
+
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="sidebar" id="sidebar">
+    <div style="padding: 0 25px 20px;"><h2 style="color:#1A5CFF; font-weight: 800;">Growth Affiliate</h2></div>
+    
+    <a href="/dashboard"><i class="fa fa-home"></i> Tableau de bord</a>
+    <a href="/revenus"><i class="fa fa-wallet"></i> Revenus</a>
+
+    <a href="javascript:void(0);" onclick="toggleSub('subChannels', this)"><i class="fa fa-tv"></i> Nos Chaînes <i class="fa fa-chevron-down" style="float:right;"></i></a>
+    <div class="sub-menu" id="subChannels">
+        <a href="https://whatsapp.com/channel/0029Vb7VCij1dAw6u6Vhbj3a"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        <a href="https://t.me/nouveau_projet228"><i class="fab fa-telegram"></i> Telegram</a>
+        <a href="/nous"><i class="fa fa-envelope"></i> Nous Contactez</a>
+    </div>
+
+    <a href="javascript:void(0);" onclick="toggleSub('subFormation', this)"><i class="fa fa-graduation-cap"></i> Formation <i class="fa fa-chevron-down" style="float:right;"></i></a>
+    <div class="sub-menu" id="subFormation">
+        <a href="/trade"><i class="fa fa-chart-line"></i> Trading</a>
+        <a href="/ecom"><i class="fa fa-store"></i> E-commerce</a>
+    </div>
+
+    <a href="javascript:void(0);" onclick="toggleSub('subTasks', this)"><i class="fa fa-tasks"></i> Tâches <i class="fa fa-chevron-down" style="float:right;"></i></a>
+    <div class="sub-menu" id="subTasks">
+        <a href="/taches/click-jeudi"><i class="fa fa-hand-pointer"></i> Click Pub</a>
+        <a href="/youtube"><i class="fab fa-youtube"></i> Vidéo YouTube</a>
+        <a href="/tiktok"><i class="fab fa-tiktok"></i> Vidéo TikTok</a>
+        <a href="/instagram"><i class="fab fa-instagram"></i> Vidéo Insta</a>
+        <a href="/taches/questions-lundi"><i class="fa fa-question"></i> Répondre aux questions</a>
+    </div>
+
+    <a href="javascript:void(0);" onclick="toggleSub('subRetraits', this)"><i class="fa fa-money-bill"></i> Retraits <i class="fa fa-chevron-down" style="float:right;"></i></a>
+    <div class="sub-menu" id="subRetraits">
+        <a href="/retrait"><i class="fa fa-wallet"></i> Solde de retrait</a>
+        <a href="/retrait-points"><i class="fa fa-coins"></i> Solde des Taches</a>
+        <a href="/mes-retraits"><i class="fa fa-history"></i> Mes retraits</a>
+    </div>
+
+    <a href="javascript:void(0);" onclick="toggleSub('subMoi', this)"><i class="fa fa-user"></i> Moi <i class="fa fa-chevron-down" style="float:right;"></i></a>
+    <div class="sub-menu" id="subMoi">
+        <a href="/profile"><i class="fa fa-user"></i> Mon profile</a>
+        <a href="/team"><i class="fa fa-users"></i> Mon équipes</a>
+    </div>
+
+    <a href="/wheel"><i class="fa fa-dharmachakra"></i> Roue de la Fortune</a>
+    <a href="/download/contact"><i class="fa fa-address-book"></i> Contacts vcf</a>
+    <a href="/apk"><i class="fa fa-th"></i> Apk Premium</a>
+    <a href="/about"><i class="fa fa-info-circle"></i> À propos</a>
+    <a href="/logout" style="color:#ff4757;"><i class="fa fa-sign-out"></i> Déconnexion</a>
+</div>
+
+<div class="topbar">
+    <div class="menu-toggle" id="menuToggle"><i class="fa fa-bars-staggered"></i></div>
+    <div class="brand-name">Growth Affiliate</div>
+    
+    <div class="user-menu-container">
+        <div class="user-icon-bg" id="userMenuBtn">
+            <i class="fa fa-user"></i>
+        </div>
+        
+        <div class="dropdown-menu" id="userDropdown">
+            <div class="dropdown-header">Mon Compte</div>
+            
+            <a href="/profile" class="dropdown-item">
+                <i class="fa-regular fa-circle-user"></i> Profil
+            </a>
+            <div class="dropdown-item no-click">
+                <i class="fa-solid fa-wallet"></i> Solde: <span class="balance-text">2500 F</span>
+            </div>
+            
+            <div class="dropdown-divider"></div>
+            
+            <div class="dropdown-item mode-toggle" onclick="toggleTheme()">
+                <div class="mode-info">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    <span id="themeText">Mode Sombre</span>
+                </div>
+                <div class="switch-ui"></div>
+            </div>
+            
+            <div class="dropdown-divider"></div>
+            
+            <a href="/logout" class="dropdown-item logout-link">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnexion
+            </a>
+        </div>
+    </div>
+</div>
+
+
+<div class="main">
+    <div class="hero-card">
+        <h2>Hello, {{ user.username }} 👋</h2>
+        <p>Bienvenue sur Growth Affiliate. Accédez à vos produits numériques et développez vos revenus dès maintenant.</p>
+        
+        <div class="hero-stats">
+            <div class="hero-stat-item">
+                <div class="hero-stat-icon bg-red"><i class="fa fa-arrow-down"></i></div>
+                <div class="hero-stat-info">
+                    <span>Expenses</span>
+                    <strong>XOF 3,800</strong>
+                </div>
+            </div>
+            <div class="hero-stat-item">
+                <div class="hero-stat-icon bg-green"><i class="fa fa-arrow-up"></i></div>
+                <div class="hero-stat-info">
+                    <span>Profit</span>
+                    <strong>XOF {{ "{:,}".format(user.solde_revenu or 0) }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if not user.whatsapp_number %}
+    <div class="form-card">
+        <h4>Ajouter votre WhatsApp</h4>
+        <form method="POST" action="/whatsapp-number" onsubmit="prepareWhatsappNumber()">
+            <div class="phone-group">
+<div class="phone-group">
+            <select id="countryCode" class="country-select" required>
+                <option value="+228">🇹🇬 Togo (+228)</option>
+                <option value="+229">🇧🇯 Bénin (+229)</option>
+                <option value="+237">🇨🇲 Cameroun (+237)</option>
+                <option value="+242">🇨🇬 Congo Brazzaville (+242)</option>
+                <option value="+225">🇨🇮 Côte d’Ivoire (+225)</option>
+                <option value="+226">🇧🇫 Burkina Faso (+226)</option>
+                <option value="+223">🇲🇱 Mali (+223)</option>
+                <option value="+221">🇸🇳 Sénégal (+221)</option>
+                <option value="+243">🇨🇩 Congo Kinshasa (+243)</option>
+                <option value="+227">🇳🇪 Niger (+227)</option>
+                <option value="+241">🇬🇦 Gabon (+241)</option>
+            </select>
+                <input type="tel" id="phoneNumber" class="phone-input" placeholder="Numéro WhatsApp" required style="flex:1;">
+            </div>
+            <input type="hidden" name="number" id="fullWhatsapp">
+            <button type="submit" class="btn-primary">Enregistrer</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="stat-row">
+        <div class="stat-left">
+            <div class="stat-circle c-green"><i class="fa fa-chart-line"></i></div>
+            <div class="stat-info">
+                <div class="val">{{ "{:,}".format(solde_parrainage or 0) }} XOF</div>
+                <div class="lbl">Current Balance</div>
+            </div>
+        </div>
+        <i class="fa fa-arrow-trend-up trend-icon"></i>
+    </div>
+
+    <div class="stat-row">
+        <div class="stat-left">
+            <div class="stat-circle c-orange"><i class="fa fa-wallet"></i></div>
+            <div class="stat-info">
+                <div class="val">XOF {{ "{:,}".format(total_withdrawn_user or 0) }}</div>
+                <div class="lbl">Total Withdrawals</div>
+            </div>
+        </div>
+        <i class="fa fa-arrow-trend-up trend-icon"></i>
+    </div>
+
+    <div class="stat-row">
+        <div class="stat-left">
+            <div class="stat-circle c-blue"><i class="fa fa-star"></i></div>
+            <div class="stat-info">
+                <div class="val">{{ user.points or 0 }} pts</div>
+                <div class="lbl">Tasks Points</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ref-section">
+        <p style="font-weight: 700; font-size: 14px; color: #444;">Lien de parrainage</p>
+        <div class="ref-link" id="refLink">{{ referral_link }}</div>
+        <button class="btn-copy" onclick="copyReferral()">Copier le lien</button>
+    </div>
+
+<div class="affiliate-card">
+    <h3>Affiliate Network</h3>
+    <div class="level-row">
+        <span class="level-name">Total Level 1 Team</span>
+        <span class="level-count">{{ count_level1 or 0 }}</span>
+    </div>
+    <div class="level-row">
+        <span class="level-name">Total Level 2 Team</span>
+        <span class="level-count">{{ count_level2 or 0 }}</span>
+    </div>
+    <div class="level-row">
+        <span class="level-name">Total Level 3 Team</span>
+        <span class="level-count">{{ count_level3 or 0 }}</span>
+    </div>
+</div>
+
+<div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-dot dot-purple"></div>
+            <div class="timeline-content">
+                <b>Questions</b>
+                <span>Answer Questions...</span>
+                <span style="color: #718096;">Mondays</span>
+            </div>
+            <div class="timeline-time">8:00 AM</div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timeline-dot dot-gray"></div>
+            <div class="timeline-content">
+                <b>TikTok Videos</b>
+                <span>Watch TikTok Video...</span>
+                <span style="color: #718096;">Tuesdays</span>
+            </div>
+            <div class="timeline-time">8:00 AM</div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timeline-dot dot-red"></div>
+            <div class="timeline-content">
+                <b>Youtube Videos</b>
+                <span>Watch YouTube Vid...</span>
+                <span style="color: #718096;">Wednesdays</span>
+            </div>
+            <div class="timeline-time">8:00 AM</div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timeline-dot dot-green"></div>
+            <div class="timeline-content">
+                <b>Ads Clicking</b>
+                <span>Click on Ads(Adver...</span>
+                <span style="color: #718096;">Thursdays</span>
+            </div>
+            <div class="timeline-time">8:00 AM</div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timeline-dot dot-orange"></div>
+            <div class="timeline-content">
+                <b>Post Memes</b>
+                <span>Post memes and st...</span>
+                <span style="color: #718096;">Fridays</span>
+            </div>
+            <div class="timeline-time">8:00 AM</div>
+        </div>
+    </div>
+</div>
+
+    <footer>2026 © Growth Affiliate</footer>
+</div>
+<script>
+    // --- GESTION DE LA SIDEBAR (MENU GAUCHE) ---
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+    });
+
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    });
+
+    function toggleSub(id, el) {
+        const sub = document.getElementById(id);
+        const icon = el.querySelector('.fa-chevron-down');
+        if (sub.style.display === "block") {
+            sub.style.display = "none";
+            icon.style.transform = "rotate(0deg)";
+        } else {
+            sub.style.display = "block";
+            icon.style.transform = "rotate(180deg)";
+        }
+    }
+
+    // --- GESTION DU MENU UTILISATEUR (DROITE) ---
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userDropdown = document.getElementById('userDropdown');
+
+    // Ouvrir/Fermer au clic sur l'icône
+    userMenuBtn.addEventListener('click', (e) => {
+        userDropdown.classList.toggle('show');
+        e.stopPropagation(); // Empêche la fermeture immédiate via l'écouteur window
+    });
+
+    // Fermer si on clique n'importe où ailleurs sur l'écran
+    window.addEventListener('click', () => {
+        if (userDropdown.classList.contains('show')) {
+            userDropdown.classList.remove('show');
+        }
+    });
+
+    // --- GESTION DU MODE SOMBRE / CLAIR ---
+    function toggleTheme() {
+        const body = document.body;
+        const icon = document.getElementById('themeIcon');
+        const text = document.getElementById('themeText');
+
+        body.classList.toggle('dark-mode');
+
+        // Note: Tu devras ajouter des styles CSS pour .dark-mode pour voir le changement
+        if (body.classList.contains('dark-mode')) {
+            icon.classList.replace('fa-moon', 'fa-sun');
+            text.innerText = "Mode Clair";
+            localStorage.setItem('theme', 'dark');
+        } else {
+            icon.classList.replace('fa-sun', 'fa-moon');
+            text.innerText = "Mode Sombre";
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    // Appliquer le thème sauvegardé au chargement
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        // On vérifie si les éléments existent avant de modifier pour éviter les erreurs
+        if(document.getElementById('themeIcon')) {
+            document.getElementById('themeIcon').classList.replace('fa-moon', 'fa-sun');
+            document.getElementById('themeText').innerText = "Mode Clair";
+        }
+    }
+
+    // --- AUTRES FONCTIONS (Copie & WhatsApp) ---
+    function copyReferral() {
+        const link = document.getElementById('refLink').innerText;
+        navigator.clipboard.writeText(link);
+        alert("Lien de parrainage copié !");
+    }
+
+    function prepareWhatsappNumber() {
+        const code = document.getElementById('countryCode').value;
+        const num = document.getElementById('phoneNumber').value;
+        document.getElementById('fullWhatsapp').value = code + num;
+    }
+</script>
+
+</body>
+</html>
+

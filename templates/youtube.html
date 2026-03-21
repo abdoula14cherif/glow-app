@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Rewards - NovaTrade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --yt-red: #FF0000;
+            --yt-dark: #0F0F0F;
+            --glass-white: rgba(255, 255, 255, 0.08);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--yt-dark); color: white; }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* Header YouTube Style */
+        .yt-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 0; margin-bottom: 20px;
+        }
+        .yt-logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 20px; letter-spacing: -1px; }
+        .yt-logo i { color: var(--yt-red); font-size: 28px; }
+
+        /* Points Indicator */
+        .points-pill {
+            background: var(--glass-white); border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 13px;
+        }
+
+        /* Player Area */
+        .video-box {
+            width: 100%; aspect-ratio: 16/9; background: #000;
+            border-radius: 16px; overflow: hidden; position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05);
+        }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* Overlays */
+        .overlay-msg {
+            position: absolute; inset: 0; background: var(--yt-dark);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 25px; z-index: 5;
+        }
+        .overlay-msg i { font-size: 45px; color: #4A4A4A; margin-bottom: 15px; }
+        .overlay-msg h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .overlay-msg p { font-size: 13px; color: #717171; line-height: 1.4; }
+
+        /* Task Card */
+        .task-card {
+            background: var(--glass-white); border-radius: 16px; padding: 20px;
+            margin-top: 25px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .task-step { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .step-num { width: 28px; height: 28px; background: var(--yt-red); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
+        
+        /* Progress Bar */
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 10px; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: var(--yt-red); transition: 1s linear; }
+
+        .btn-claim {
+            width: 100%; padding: 15px; border-radius: 30px; border: none;
+            background: white; color: black; font-weight: 800; margin-top: 20px;
+            cursor: pointer; display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="yt-header">
+        <div class="yt-logo"><i class="fab fa-youtube"></i> YouTube</div>
+        <div class="points-pill">+20 Points</div>
+    </div>
+
+    <div class="video-box">
+        <div id="wait-msg" class="overlay-msg" style="display: none;">
+            <i class="fa fa-clock"></i>
+            <h3>Contenu Verrouillé</h3>
+            <p>Cette mission est disponible uniquement le <strong>Mercredi à partir de 08:00</strong>.</p>
+        </div>
+
+        {% if user.last_youtube_date == current_date %}
+        <div class="overlay-msg">
+            <i class="fa fa-circle-check" style="color: #2BA640;"></i>
+            <h3>Mission Terminée</h3>
+            <p>Vous avez déjà récupéré vos points YouTube pour aujourd'hui.</p>
+        </div>
+        {% endif %}
+
+        <div id="player-container" style="display: none; width: 100%; height: 100%;">
+            <iframe id="yt-iframe" src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=1&rel=0" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <div class="task-card">
+        <div class="task-step">
+            <div class="step-num">1</div>
+            <p style="font-weight: 600; font-size: 14px;">Regardez la vidéo (45s)</p>
+        </div>
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <p id="timer-text" style="font-size: 11px; color: #717171; margin-top: 8px; text-align: right;">En attente de lecture...</p>
+    </div>
+
+    <button id="claim-btn" class="btn-claim" onclick="claimReward()">
+        RÉCUPÉRER MES 20 POINTS
+    </button>
+</div>
+
+<script>
+    function verifyAccess() {
+        const now = new Date();
+        const day = now.getDay(); // 3 = Mercredi en JS
+        const hour = now.getHours();
+
+        const isWednesday = (day === 3);
+        const isTimeOk = (hour >= 8);
+
+        const playerContainer = document.getElementById('player-container');
+        const waitMsg = document.getElementById('wait-msg');
+
+        if (isWednesday && isTimeOk) {
+            {% if user.last_youtube_date != current_date %}
+            playerContainer.style.display = 'block';
+            startTracking();
+            {% endif %}
+        } else {
+            {% if user.last_youtube_date != current_date %}
+            waitMsg.style.display = 'flex';
+            {% endif %}
+        }
+    }
+
+    function startTracking() {
+        let progress = 0;
+        const bar = document.getElementById('progress-bar');
+        const text = document.getElementById('timer-text');
+        const btn = document.getElementById('claim-btn');
+        
+        const interval = setInterval(() => {
+            progress += (100 / 45); // Pour 45 secondes
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+                text.innerText = "Mission accomplie !";
+                btn.style.display = 'block';
+            } else {
+                text.innerText = "Progression : " + Math.round(progress) + "%";
+            }
+            bar.style.width = progress + "%";
+        }, 1000);
+    }
+
+    function claimReward() {
+        fetch('/youtube/complete')
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'ok') {
+                alert("Félicitations ! Vos points ont été ajoutés.");
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+
+    window.onload = verifyAccess;
+</script>
+
+</body>
+</html>
+

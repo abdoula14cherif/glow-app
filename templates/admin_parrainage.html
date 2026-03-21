@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Réseau - NovaTrade Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5D5FEF;
+            --dark: #0F172A;
+            --bg: #F8FAFC;
+            --border: #E2E8F0;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--dark); }
+
+        .admin-header {
+            background: white; padding: 20px 40px; display: flex; 
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .admin-header h2 { font-weight: 800; font-size: 20px; color: var(--primary); }
+        .nav-links a { text-decoration: none; color: #64748B; font-weight: 700; font-size: 14px; margin-left: 20px; }
+
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+
+        /* Barre de recherche rapide */
+        .search-box {
+            background: white; padding: 15px 25px; border-radius: 18px;
+            display: flex; align-items: center; gap: 15px; margin-bottom: 25px;
+            border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .search-box input { border: none; outline: none; width: 100%; font-size: 14px; font-weight: 600; color: var(--dark); }
+
+        /* Table Style */
+        .table-container { background: white; border-radius: 24px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #F1F5F9; padding: 18px 20px; text-align: left; font-size: 12px; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 20px; border-top: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+        
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 35px; height: 35px; background: #EEF2FF; color: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+        
+        .badge-parrain { background: #F1F5F9; color: #475569; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1px solid #E2E8F0; }
+        .badge-none { color: #CBD5E1; font-style: italic; font-weight: 500; }
+
+        .btn-edit { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 12px; }
+        .btn-edit:hover { background: #4a4cd9; transform: translateY(-2px); }
+
+        /* Modal Style */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
+        .modal-content { background: white; width: 90%; max-width: 450px; border-radius: 28px; padding: 35px; animation: popIn 0.3s ease; position: relative; }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .close-modal { position: absolute; top: 20px; right: 25px; font-size: 20px; color: #94A3B8; cursor: pointer; }
+        .modal h3 { margin-bottom: 25px; font-weight: 800; font-size: 20px; }
+
+        .form-group { margin-bottom: 18px; text-align: left; }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; color: #94A3B8; text-transform: uppercase; margin-bottom: 8px; margin-left: 4px; }
+        .form-control { width: 100%; padding: 14px 18px; border-radius: 14px; border: 1.5px solid #F1F5F9; background: #F8FAFC; outline: none; font-weight: 600; transition: 0.3s; }
+        .form-control:focus { border-color: var(--primary); background: white; }
+
+        .btn-save { width: 100%; background: var(--dark); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; cursor: pointer; margin-top: 10px; }
+
+        .alert { padding: 15px; border-radius: 14px; margin-bottom: 20px; font-weight: 700; font-size: 14px; text-align: center; border: 1px solid transparent; }
+        .alert-success { background: #DCFCE7; color: #166534; border-color: #BBF7D0; }
+        .alert-danger { background: #FEE2E2; color: #991B1B; border-color: #FECACA; }
+    </style>
+</head>
+<body>
+
+    <header class="admin-header">
+        <h2><i class="fa fa-sitemap"></i> Réseau Parrainage</h2>
+        <nav class="nav-links">
+            <a href="{{ url_for('admin_deposits') }}">Finance</a>
+            <a href="#" style="color: var(--primary);">Utilisateurs</a>
+            <a href="/logout" style="color: #EB5757;"><i class="fa fa-power-off"></i></a>
+        </nav>
+    </header>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="search-box">
+            <i class="fa fa-search" style="color: #94A3B8;"></i>
+            <input type="text" id="userSearch" placeholder="Rechercher un utilisateur ou un numéro..." onkeyup="filterTable()">
+        </div>
+
+        <div class="table-container">
+            <table id="adminTable">
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Téléphone</th>
+                        <th>Parrain Actuel</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">{{ u.username[0]|upper }}</div>
+                                <strong>{{ u.username }}</strong>
+                            </div>
+                        </td>
+                        <td><span style="font-weight: 700; color: #64748B;">{{ u.phone }}</span></td>
+                        <td>
+                            {% if u.parrain %}
+                                <span class="badge-parrain"><i class="fa fa-link" style="font-size: 10px;"></i> {{ u.parrain }}</span>
+                            {% else %}
+                                <span class="badge-none">Aucun</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right;">
+                            <button class="btn-edit" onclick="openEditModal('{{ u.id }}', '{{ u.username }}', '{{ u.phone }}', '{{ u.parrain or '' }}')">
+                                <i class="fa fa-pen"></i> Modifier
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3>Modifier le compte</h3>
+            
+            <form action="{{ url_for('admin_parrainage') }}" method="POST">
+                <input type="hidden" name="user_id" id="modal_user_id">
+                
+                <div class="form-group">
+                    <label>Username (minuscules + chiffres)</label>
+                    <input type="text" name="username" id="modal_username" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Numéro de téléphone</label>
+                    <input type="text" name="phone" id="modal_phone" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Username du Parrain</label>
+                    <input type="text" name="parrain" id="modal_parrain" class="form-control" placeholder="Laisser vide pour supprimer">
+                </div>
+
+                <button type="submit" class="btn-save">ENREGISTRER LES MODIFICATIONS</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openEditModal(id, username, phone, parrain) {
+            document.getElementById('modal_user_id').value = id;
+            document.getElementById('modal_username').value = username;
+            document.getElementById('modal_phone').value = phone;
+            document.getElementById('modal_parrain').value = parrain;
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('editModal')) closeModal();
+        }
+
+        // Fonction de recherche temps réel
+        function filterTable() {
+            let input = document.getElementById("userSearch").value.toUpperCase();
+            let rows = document.getElementById("adminTable").getElementsByTagName("tr");
+            for (let i = 1; i < rows.length; i++) {
+                let text = rows[i].textContent || rows[i].innerText;
+                rows[i].style.display = text.toUpperCase().indexOf(input) > -1 ? "" : "none";
+            }
+        }
+    </script>
+</body>
+</html>
+

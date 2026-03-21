@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Pro - Growth Affiliate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: #F4F7FE; color:#333; }
+
+        .topbar {
+            display:flex; align-items:center; padding:15px 20px;
+            background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:1000;
+        }
+        .back-btn { font-size:18px; color:#5D5FEF; margin-right: 15px; text-decoration: none; }
+        .topbar h1 { font-size:18px; font-weight:800; color:#333; }
+
+        .main { padding:20px; max-width: 550px; margin: 0 auto; }
+
+        /* HEADER ECOM */
+        .ecom-hero {
+            background: linear-gradient(135deg, #FF7A00 0%, #FF4D00 100%);
+            color: #fff; padding: 30px 20px; border-radius: 24px;
+            margin-bottom: 25px; position: relative; overflow: hidden;
+            box-shadow: 0 10px 20px rgba(255, 122, 0, 0.2);
+        }
+        .ecom-hero h2 { font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+        .ecom-hero p { font-size: 13px; opacity: 0.9; line-height: 1.5; }
+        .ecom-hero i { position: absolute; right: -10px; bottom: -10px; font-size: 80px; opacity: 0.15; }
+
+        /* VIDEO CARDS */
+        .video-card {
+            background: #fff; border-radius: 20px; overflow: hidden;
+            border: 1px solid #F0F2FF; margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .video-container {
+            position: relative; width: 100%; padding-bottom: 56.25%;
+            background: #000;
+        }
+        .video-container iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+        }
+        .video-info { padding: 15px; }
+        .video-tag {
+            background: #FFF0E0; color: #FF7A00; font-size: 10px; font-weight: 800;
+            padding: 4px 10px; border-radius: 6px; text-transform: uppercase;
+            display: inline-block; margin-bottom: 8px;
+        }
+        .video-info h3 { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 5px; }
+        .video-info p { font-size: 12px; color: #718096; }
+
+        /* SECTION OUTILS */
+        .tools-box {
+            background: #fff; padding: 20px; border-radius: 24px;
+            border: 1px solid #F0F2FF; margin-top: 10px;
+        }
+        .tools-box h4 { font-size: 14px; font-weight: 800; margin-bottom: 15px; color: #333; }
+        .tool-item {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+        }
+        .tool-icon {
+            width: 35px; height: 35px; border-radius: 10px; background: #F4F7FE;
+            display: flex; align-items: center; justify-content: center; color: #FF7A00;
+        }
+        .tool-text { font-size: 12px; font-weight: 600; color: #4A5568; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <a href="/dashboard" class="back-btn"><i class="fa fa-arrow-left"></i></a>
+    <h1>E-commerce Academy</h1>
+</div>
+
+<div class="main">
+
+    <div class="ecom-hero">
+        <h2>Vendez partout en Afrique</h2>
+        <p>Maîtrisez l'art de la vente en ligne, du sourcing produit à la livraison finale.</p>
+        <i class="fa fa-shopping-bag"></i>
+    </div>
+
+    <div class="video-card">
+        <div class="video-container">
+            <iframe src="https://www.youtube.com/embed/M1R47OI5FwI" allowfullscreen></iframe>
+        </div>
+        <div class="video-info">
+            <span class="video-tag">Cours 01</span>
+            <h3>Bienvenue dans l'académie</h3>
+            <p>Découvrez les bases de la plateforme et comment bien démarrer votre parcours.</p>
+        </div>
+    </div>
+
+    <div class="video-card">
+        <div class="video-container">
+            <iframe src="https://www.youtube.com/embed/OvGJd7CwdoE" allowfullscreen></iframe>
+        </div>
+        <div class="video-info">
+            <span class="video-tag">Cours 02</span>
+            <h3>Stratégies de vente</h3>
+            <p>Apprenez à cibler les bons produits pour le marché local.</p>
+        </div>
+    </div>
+
+    <div class="video-card">
+        <div class="video-container">
+            <iframe src="https://www.youtube.com/embed/w1Nq7I53EKk" allowfullscreen></iframe>
+        </div>
+        <div class="video-info">
+            <span class="video-tag">Cours 03</span>
+            <h3>Optimisation et Publicité</h3>
+            <p>Comment attirer plus de clients sur vos offres quotidiennes.</p>
+        </div>
+    </div>
+
+    <div class="video-card">
+        <div class="video-container">
+            <iframe src="https://www.youtube.com/embed/MSSZv7758tY" allowfullscreen></iframe>
+        </div>
+        <div class="video-info">
+            <span class="video-tag">Cours 04</span>
+            <h3>Retraits et Gestion</h3>
+            <p>Gérez vos bénéfices et apprenez à réinvestir pour plus de revenus.</p>
+        </div>
+    </div>
+
+    <div class="tools-box">
+        <h4>Outils Recommandés</h4>
+        <div class="tool-item">
+            <div class="tool-icon"><i class="fa fa-store"></i></div>
+            <div class="tool-text">Shopify ou WooCommerce (Boutique)</div>
+        </div>
+        <div class="tool-item">
+            <div class="tool-icon"><i class="fab fa-canva"></i></div>
+            <div class="tool-text">Canva (Designs publicitaires)</div>
+        </div>
+        <div class="tool-item">
+            <div class="tool-icon"><i class="fab fa-whatsapp"></i></div>
+            <div class="tool-text">WhatsApp Business (SAV)</div>
+        </div>
+    </div>
+
+    <p style="text-align: center; margin-top: 40px; font-size: 11px; color: #A0AEC0; font-weight: 600; padding-bottom: 20px;">
+        Growth Affiliate Academy — Boosté pour 2026
+    </p>
+
+</div>
+
+</body>
+</html>
+

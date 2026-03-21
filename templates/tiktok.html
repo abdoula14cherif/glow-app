@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Rewards - NovaTrade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --tt-black: #121212;
+            --tt-pink: #FE2C55;
+            --tt-cyan: #25F4EE;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--tt-black); color: white; overflow-x: hidden; }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* Header Stats */
+        .header-reward {
+            background: var(--glass); border-radius: 20px; padding: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid rgba(255,255,255,0.1); margin-bottom: 25px;
+        }
+        .points-badge { background: var(--tt-pink); padding: 5px 12px; border-radius: 10px; font-weight: 800; font-size: 14px; box-shadow: 0 0 15px rgba(254, 44, 85, 0.3); }
+
+        /* Video Container */
+        .video-card {
+            background: #000; border-radius: 30px; position: relative;
+            aspect-ratio: 9/16; width: 100%; max-height: 70vh;
+            overflow: hidden; border: 2px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* Overlay Message */
+        .status-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.85);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 30px; z-index: 10;
+        }
+        .status-overlay i { font-size: 50px; margin-bottom: 20px; color: var(--tt-cyan); }
+        .status-overlay h2 { font-weight: 800; margin-bottom: 10px; }
+        .status-overlay p { color: #A0AEC0; font-size: 14px; line-height: 1.5; }
+
+        /* Rewards Info */
+        .info-footer { margin-top: auto; padding: 20px 0; }
+        .reward-item {
+            display: flex; align-items: center; gap: 15px; background: var(--glass);
+            padding: 15px; border-radius: 18px; margin-bottom: 10px;
+        }
+        .reward-item i { color: var(--tt-cyan); font-size: 20px; }
+        .reward-item span { font-weight: 700; font-size: 14px; }
+
+        /* Animations */
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .claiming { animation: pulse 1s infinite; color: var(--tt-cyan) !important; }
+
+        /* Loader */
+        .loader { width: 40px; height: 40px; border: 4px solid var(--tt-pink); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-reward">
+        <div>
+            <p style="font-size: 12px; color: #718096; font-weight: 700;">Bonus Hebdomadaire</p>
+            <p style="font-weight: 800; font-size: 18px;">TikTok Vision</p>
+        </div>
+        <div class="points-badge">+20 Points</div>
+    </div>
+
+    <div class="video-card">
+        <div id="wait-screen" class="status-overlay" style="display: none;">
+            <i class="fa fa-calendar-day"></i>
+            <h2>Vidéo indisponible</h2>
+            <p>Revenez chaque <strong>mardi à partir de 08:00</strong> pour gagner vos points bonus.</p>
+        </div>
+
+        {% if user.last_tiktok_date == current_date %}
+        <div class="status-overlay">
+            <i class="fa fa-check-circle" style="color: var(--tt-success);"></i>
+            <h2>Objectif Atteint !</h2>
+            <p>Vous avez déjà reçu vos 20 points pour aujourd'hui. Rendez-vous mardi prochain !</p>
+        </div>
+        {% endif %}
+
+        <div id="video-wrapper" style="width: 100%; height: 100%; display: none;">
+            <iframe id="tiktok-player" 
+                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&controls=0&rel=0" 
+                    allow="autoplay; encrypted-media">
+            </iframe>
+        </div>
+    </div>
+
+    <div class="info-footer">
+        <div class="reward-item">
+            <i class="fa fa-video"></i>
+            <span>Regardez 30 secondes pour valider</span>
+        </div>
+        <div id="claim-status" class="reward-item" style="border: 1px dashed var(--tt-cyan);">
+            <i class="fa fa-gift"></i>
+            <span id="status-text">Récompense en attente...</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function checkLogic() {
+        const now = new Date();
+        const day = now.getDay(); // 2 pour Mardi dans JS (Dimanche = 0, Lundi = 1, Mardi = 2)
+        const hour = now.getHours();
+        
+        const isTuesday = (day === 2);
+        const isTimeOk = (hour >= 8);
+
+        const videoWrapper = document.getElementById('video-wrapper');
+        const waitScreen = document.getElementById('wait-screen');
+
+        // Note: Dans ton Python 'today' est 1 pour Mardi, dans JS c'est 2. 
+        // On s'aligne sur la logique "Mardi" (Tuesday).
+        if (isTuesday && isTimeOk) {
+            videoWrapper.style.display = 'block';
+            startRewardTimer();
+        } else {
+            {% if user.last_tiktok_date != current_date %}
+            waitScreen.style.display = 'flex';
+            {% endif %}
+        }
+    }
+
+    function startRewardTimer() {
+        const statusText = document.getElementById('status-text');
+        
+        // Simule une attente de 30 secondes de visionnage
+        setTimeout(() => {
+            statusText.innerText = "Validation en cours...";
+            statusText.classList.add('claiming');
+
+            // Appel AJAX vers ta route Python
+            fetch('/tiktok/complete')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'ok') {
+                        statusText.innerText = "Points ajoutés avec succès !";
+                        statusText.style.color = "#27AE60";
+                        alert("Félicitations ! +20 Points ajoutés.");
+                        location.reload();
+                    } else {
+                        statusText.innerText = data.message;
+                    }
+                })
+                .catch(err => {
+                    console.error("Erreur de récompense");
+                });
+        }, 30000); // 30 secondes
+    }
+
+    // Lancer la vérification au chargement
+    window.onload = checkLogic;
+</script>
+
+</body>
+</html>
+

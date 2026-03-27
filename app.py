@@ -518,33 +518,6 @@ def inscription_page():
     return render_template("inscription.html", code_ref=ref_code)
 
 
-PUBLIC_API_KEY = "SP_DQnD9bXH0-vd5R-jxtc0EXUsa_f0wUxBzCkW0AhCu6Q_AP"
-
-def obtenir_token():
-    url = "https://soleaspay.com/api/action/auth"
-
-    payload = {
-        "public_apikey": PUBLIC_API_KEY,
-        "private_secretkey": PRIVATE_SECRET_KEY
-    }
-
-    headers = {
-        "Content-Type": "application/json"
-    }
-
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        data = response.json()
-
-        token = data.get("access_token")   # ✅ CORRECTION ICI
-
-        if not token:
-            return None, data
-
-        return token, None
-
-    except Exception as e:
-        return None, str(e)
 
 @app.route("/admin/fix_parrain")
 def fix_parrain():
@@ -612,7 +585,7 @@ def reset_password(username):
     return f"Mot de passe réinitialisé pour {username} : {nouveau_mdp}"
 
 SOLEAS_API_KEY = "SP_DQnD9bXH0-vd5R-jxtc0EXUsa_f0wUxBzCkW0AhCu6Q_AP"
-SOLEAS_WEBHOOK_SECRET = "d3babfd8013edc16ef47f1b1b7caa088518056067af81ff6defac5e8aefb0ef947c32b4ceac5b11e3b89ac9d79685d6fd424f5da53f831cfd2fb3af9efeae566"
+SOLEAS_WEBHOOK_SECRET = "5c25631330277090f9edb253189d0d4c2d1e1cf5b208949c7a8d418a91739688ee7b4fa0075e6d0b7cc2f615640204f6786d3fd4097c16523f7a24ca2ccf29f4"
 
 SERVICES = {
 

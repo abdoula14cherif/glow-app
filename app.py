@@ -285,7 +285,7 @@ def donner_commission(parrain_username, montant_depot):
         return
 
     # --- NIVEAU 1 ---
-    commission_niveau1 = 1800
+    commission_niveau1 = 1600
 
     parrain.solde_revenu = (parrain.solde_revenu or 0) + commission_niveau1
     parrain.solde_parrainage = (parrain.solde_parrainage or 0) + commission_niveau1

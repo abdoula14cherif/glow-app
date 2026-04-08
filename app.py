@@ -1725,7 +1725,7 @@ def admin_deposits():
     retraits_query = (
         db.session.query(Retrait, User.username)
         .join(User, Retrait.phone == User.phone)
-        .filter(Retrait.statut == "successful")
+        .filter(Retrait.statut == "en_attente")
         .order_by(Retrait.date.desc())
     )
 

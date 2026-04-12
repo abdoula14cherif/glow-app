@@ -17,23 +17,19 @@ from werkzeug.utils import secure_filename
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required, UserMixin
 from flask_migrate import Migrate
 
-# ─── FLASK APP ───────────────────────────────────────────
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = "ma_cle_ultra_secrete"
 
-# ─── UPLOAD CONFIG ───────────────────────────────────────
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 UPLOAD_FOLDER_PROFILE = 'static/uploads/profiles'
 UPLOAD_FOLDER_VLOGS = 'static/vlogs'
 UPLOAD_FOLDER_APPS = os.path.join(os.getcwd(), "static", "uploads", "apps")
 
-# Création des dossiers si inexistant
 os.makedirs(UPLOAD_FOLDER_PROFILE, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER_APPS, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER_VLOGS, exist_ok=True)
 
-# Configuration Flask
 app.config['UPLOAD_FOLDER_PROFILE'] = UPLOAD_FOLDER_PROFILE
 app.config['UPLOAD_FOLDER_VLOGS'] = UPLOAD_FOLDER_VLOGS
 app.config['UPLOAD_FOLDER_APPS'] = UPLOAD_FOLDER_APPS
@@ -45,7 +41,6 @@ def allowed_file(filename):
     """
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# ─── DATABASE CONFIG ─────────────────────────────────────
 DATABASE_URL="postgresql://neondb_owner:npg_CWXz2J9SDgOl@ep-icy-glitter-abouaquq-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 
 engine = create_engine(
@@ -64,23 +59,19 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     "pool_timeout": 20
 }
 
-# ─── INITIALISATION DE LA BASE DE DONNÉES ───────────────
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# ─── FLASK-LOGIN CONFIG ─────────────────────────────────
 from flask_login import LoginManager, UserMixin, current_user
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "connexion_page"  # ta route login
+login_manager.login_view = "connexion_page" 
 
-# Fonction pour charger un utilisateur via Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))  # classique
+    return User.query.get(int(user_id)) 
 
-# Avant chaque requête, on force current_user à utiliser ta session
 @app.before_request
 def load_logged_in_user():
     from flask import g
@@ -94,13 +85,11 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.String(50), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
 
-    # Informations principales
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(30), unique=True, nullable=False)
     password = db.Column(db.String(300), nullable=False)
 
-    # Parrainage — maintenant basé sur le username
     parrain = db.Column(db.String(50), db.ForeignKey('user.username'), nullable=True)
     has_played_slot = db.Column(db.Boolean, default=False)
     downlines = db.relationship(
@@ -110,12 +99,10 @@ class User(db.Model, UserMixin):
     )
     commission_total = db.Column(db.Float, default=0.0)
     has_seen_pay_ok = db.Column(db.Boolean, default=False)
-    # Informations du portefeuille
     wallet_country = db.Column(db.String(50))
     wallet_operator = db.Column(db.String(50))
     wallet_number = db.Column(db.String(30))
     bonus = db.Column(db.Float, default=0.0)
-    # Soldes
     solde_total = db.Column(db.Float, default=0.0)
     solde_depot = db.Column(db.Float, default=0.0)
     solde_parrainage = db.Column(db.Float, default=0.0)
@@ -133,7 +120,6 @@ class User(db.Model, UserMixin):
     frog_game_done = db.Column(db.Boolean, default=False)
     country = db.Column(db.String(50), default='')
 
-    # Points divers
     points = db.Column(db.Integer, default=0)
     points_video = db.Column(db.Integer, default=0)
     points_youtube = db.Column(db.Integer, default=0)
@@ -158,39 +144,29 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"<User {self.username} | {self.phone}>"
 
-# ==============================
-# 📦 MODELS
-# ==============================
 class Depot(db.Model):
     __tablename__ = "depot"
 
     id = db.Column(db.Integer, primary_key=True)
 
-    # 🔗 Lien vers l'utilisateur via username (nom d'utilisateur)
     user_name = db.Column(
         db.String(50),
         db.ForeignKey("user.username", ondelete="CASCADE"),
         nullable=False
     )
 
-    # 📱 Informations utilisateur
     phone = db.Column(db.String(30), nullable=False)
 
-    # 🛠 Informations paiement
     operator = db.Column(db.String(50), nullable=False)
     country = db.Column(db.String(50), nullable=False)
 
-    # 💰 Montant déposé
     montant = db.Column(db.Float, nullable=False)
 
-    # 🔖 Référence transaction
     reference = db.Column(db.String(200), nullable=True)
 
-    # 📌 Statut du dépôt
     statut = db.Column(db.String(20), default="pending")
 
     email = db.Column(db.String(120), nullable=True)
-    # ⏱ Date création
     date = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
@@ -245,8 +221,8 @@ class ClickTache(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     date = db.Column(db.Date, default=datetime.utcnow().date)
-    clicks = db.Column(db.Integer, default=0)  # Nombre de clicks effectués
-    points = db.Column(db.Integer, default=0)  # Points gagnés
+    clicks = db.Column(db.Integer, default=0)  
+    points = db.Column(db.Integer, default=0) 
 
 
 class ClickJeudiReponse(db.Model):
@@ -260,18 +236,17 @@ class RetraitPoints(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     points_utilises = db.Column(db.Integer, nullable=False)
     montant_xof = db.Column(db.Float, nullable=False)
-    statut = db.Column(db.String(20), default='en_attente')  # en_attente / valide / refusé
+    statut = db.Column(db.String(20), default='en_attente')  
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship('User', backref=db.backref('retraits_points', lazy='dynamic'))
 
-# Dans ton fichier models.py ou app.py
 class GameSession(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    bet_amount = db.Column(db.Integer, default=100) # Mise
-    win_amount = db.Column(db.Integer, default=500) # Gain potentiel
-    status = db.Column(db.String(20), default='pending') # pending, won, lost
+    bet_amount = db.Column(db.Integer, default=100) 
+    win_amount = db.Column(db.Integer, default=500) 
+    status = db.Column(db.String(20), default='pending') 
     date = db.Column(db.DateTime, default=datetime.utcnow)
 
 def donner_commission(parrain_username, montant_depot):
@@ -284,7 +259,6 @@ def donner_commission(parrain_username, montant_depot):
     if not parrain:
         return
 
-    # --- NIVEAU 1 ---
     commission_niveau1 = 1600
 
     parrain.solde_revenu = (parrain.solde_revenu or 0) + commission_niveau1
@@ -293,7 +267,6 @@ def donner_commission(parrain_username, montant_depot):
 
     db.session.commit()
 
-    # --- NIVEAU 2 ---
     if parrain.parrain:
         parrain2 = User.query.filter_by(username=parrain.parrain).first()
         if parrain2:
@@ -305,7 +278,6 @@ def donner_commission(parrain_username, montant_depot):
 
             db.session.commit()
 
-            # --- NIVEAU 3 ---
             if parrain2.parrain:
                 parrain3 = User.query.filter_by(username=parrain2.parrain).first()
                 if parrain3:
@@ -316,41 +288,23 @@ def donner_commission(parrain_username, montant_depot):
                     parrain3.commission_total = (parrain3.commission_total or 0) + commission_niveau3
 
                     db.session.commit()
-# -----------------------
-# Traductions
-# -----------------------
-# Traductions
 
 
-# -----------------------
-# Décorateur login
-# -----------------------
-# -----------------------
-# Traductions
-# -----------------------
 def t(key):
     lang = session.get("lang", "fr")
     return TRANSLATIONS.get(lang, TRANSLATIONS["fr"]).get(key, key)
 
-# enregistrer la fonction dans Jinja2
 app.jinja_env.globals.update(t=t)
 
 
-# -----------------------
-# Utilisateur connecté
-# -----------------------
 def get_logged_in_user():
     """Retourne l'utilisateur connecté via user_id en session."""
     user_id = session.get("user_id")
     if not user_id:
         return None
-    # db.session.get est compatible SQLAlchemy 2.0
     return db.session.get(User, user_id)
 
 
-# -----------------------
-# Décorateur login
-# -----------------------
 def login_required(f):
     """Protège une route, redirige vers la page de connexion si non connecté."""
     @wraps(f)
@@ -374,7 +328,7 @@ def calculer_montant_points(user):
     )
     tranches = total_points // 100
     montant_xof = tranches * 200
-    points_utilisables = tranches * 100  # points qui peuvent être retirés
+    points_utilisables = tranches * 100 
     return montant_xof, points_utilisables
 
 
@@ -424,10 +378,6 @@ def init_db():
     db.create_all()
     print("✅ Base de données initialisée avec succès !")
 
-@app.route('/game-jeudi') # ou n'importe quel chemin
-def game_page(): # <--- C'est ce nom que url_for recherche
-    return render_template('game.html')
-
 
 @app.route("/inscription", methods=["GET", "POST"])
 def inscription_page():
@@ -445,7 +395,6 @@ def inscription_page():
 
         errors = []
 
-        # 🔒 Vérifications de base
         if not all([username, email, country, phone, password, confirm]):
             errors.append("Tous les champs sont obligatoires.")
 
@@ -455,7 +404,6 @@ def inscription_page():
         if password and confirm and password != confirm:
             errors.append("Les mots de passe ne correspondent pas.")
 
-        # 🔎 Vérification doublons en UNE requête
         if username and email and phone:
             existing_users = User.query.filter(
                 (User.username == username) |
@@ -472,20 +420,17 @@ def inscription_page():
                 if user.phone == phone:
                     errors.append("Ce numéro est déjà enregistré.")
 
-        # 🔗 Vérification parrainage
         parrain_user = None
         if parrain_code:
             parrain_user = User.query.filter_by(username=parrain_code).first()
             if not parrain_user:
                 errors.append("Code parrain invalide.")
 
-        # 🚨 S'il y a des erreurs
         if errors:
             for error in errors:
                 flash(error, "danger")
             return render_template("inscription.html", code_ref=ref_code)
 
-        # ✅ Création utilisateur
         try:
             new_user = User(
                 uid=str(uuid.uuid4()),
@@ -518,71 +463,36 @@ def inscription_page():
     return render_template("inscription.html", code_ref=ref_code)
 
 
-
-@app.route("/admin/fix_parrain")
-def fix_parrain():
-    ancien = "aaaa"
-    nouveau = "amen"
-
-    users = User.query.filter_by(parrain=ancien).all()
-    for u in users:
-        u.parrain = nouveau
-
-    db.session.commit()
-    return "Parrain mis à jour avec succès"
-
 @app.route("/connexion", methods=["GET", "POST"])
 def connexion_page():
     if request.method == "POST":
         username = request.form.get("username", "").strip().lower()
         password = request.form.get("password", "").strip()
 
-        # Vérification des champs requis
         if not username or not password:
             flash("Veuillez remplir tous les champs.", "danger")
             return redirect(url_for("connexion_page"))
 
-        # Récupérer l'utilisateur (username unique obligatoire)
         user = User.query.filter_by(username=username).first()
 
-        # Vérification utilisateur + mot de passe
         if not user or not check_password_hash(user.password, password):
             flash("Identifiants incorrects.", "danger")
             return redirect(url_for("connexion_page"))
 
-        # Vérification compte suspendu
         if getattr(user, "is_banned", False):
             flash("Votre compte a été suspendu. Contactez le support.", "danger")
             return redirect(url_for("connexion_page"))
 
-        # Sécurisation de la session
         session.clear()
         session["user_id"] = user.id
         session["username"] = user.username
-        session.permanent = True  # Pour éviter la déconnexion rapide
+        session.permanent = True  
 
         flash(f"Connexion réussie ! Bienvenue {user.username}.", "success")
         return redirect(url_for("dashboard_page"))
 
-    # Méthode GET : afficher la page de connexion
     return render_template("connexion.html")
 
-
-@app.route("/admin/reset_password/<username>")
-def reset_password(username):
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        return "Utilisateur introuvable"
-
-    from werkzeug.security import generate_password_hash
-
-    nouveau_mdp = "ingrd123"
-    user.password = generate_password_hash(nouveau_mdp)
-
-    db.session.commit()
-
-    return f"Mot de passe réinitialisé pour {username} : {nouveau_mdp}"
 
 SOLEAS_API_KEY = "SP_DQnD9bXH0-vd5R-jxtc0EXUsa_f0wUxBzCkW0AhCu6Q_AP"
 SOLEAS_WEBHOOK_SECRET = "5c25631330277090f9edb253189d0d4c2d1e1cf5b208949c7a8d418a91739688ee7b4fa0075e6d0b7cc2f615640204f6786d3fd4097c16523f7a24ca2ccf29f4"
@@ -693,26 +603,20 @@ def dashboard_bloque():
     if user_is_activated(user):
         return redirect(url_for("dashboard_page"))
 
-    # Simule un dépôt pending
     pending_depot = None
     user_has_pending_depot = bool(pending_depot)
 
-    # Récupération du code pays
     country_code = COUNTRY_CODE.get(user.country.strip())
     if not country_code:
         flash("Pays non supporté.", "danger")
         return redirect(url_for("connexion_page"))
 
-    # =========================
-    # POST : paiement
-    # =========================
     if request.method == "POST":
         operator_name = request.form.get("operator")
         amount = request.form.get("montant", type=int)
         fullname = request.form.get("fullname")
-        phone = request.form.get("phone")  # ✅ numéro modifiable
+        phone = request.form.get("phone")  
 
-        # 🔒 Vérifications
         if not operator_name or not amount or not fullname or not phone:
             flash("Tous les champs sont requis.", "danger")
             return redirect(url_for("dashboard_bloque"))
@@ -721,14 +625,12 @@ def dashboard_bloque():
             flash("Le montant d'activation est exactement 3800 FCFA.", "danger")
             return redirect(url_for("dashboard_bloque"))
 
-        # 🔒 Nettoyage numéro
         phone = phone.replace(" ", "").replace("-", "")
 
         if not phone.isdigit() or len(phone) < 8:
             flash("Numéro de paiement invalide.", "danger")
             return redirect(url_for("dashboard_bloque"))
 
-        # 🔹 Recherche du service SoleasPay
         service = next(
             (s for s in SERVICES[country_code] if s["name"] == operator_name),
             None
@@ -738,12 +640,11 @@ def dashboard_bloque():
             flash("Opérateur non supporté pour votre pays.", "danger")
             return redirect(url_for("dashboard_bloque"))
 
-        # 🔹 Création du dépôt AVANT paiement avec toutes les infos obligatoires
         new_depot = Depot(
             user_name=user.username,
             phone=phone,
-            operator=operator_name,  # ✅ maintenant obligatoire
-            country=country_code,    # ✅ maintenant obligatoire
+            operator=operator_name,  
+            country=country_code,   
             montant=amount,
             statut="en_attente",
             email=user.email
@@ -751,9 +652,8 @@ def dashboard_bloque():
         db.session.add(new_depot)
         db.session.commit()
 
-        # 🔹 Payload SoleasPay avec DEPOT_ID
         payload = {
-            "wallet": phone,  # ✅ NUMÉRO SAISI PAR L’UTILISATEUR
+            "wallet": phone,  
             "amount": amount,
             "currency": "XOF",
             "order_id": f"GLOW-{new_depot.id}",
@@ -790,9 +690,6 @@ def dashboard_bloque():
         flash("Veuillez confirmer le paiement sur votre téléphone.", "info")
         return redirect(url_for("dashboard_bloque"))
 
-    # =========================
-    # GET : affichage page
-    # =========================
     return render_template(
         "dashboard_bloque.html",
         user=user,
@@ -829,9 +726,6 @@ def get_global_stats():
     return total_users, total_deposits, total_withdrawn
 
 
-# --------------------------------------
-# 1️⃣ Page dashboard_bloque (initiation paiement)
-# --------------------------------------
 from urllib.parse import urlencode
 
 @app.route("/api/webhook/soleaspay", methods=["POST"])
@@ -897,8 +791,7 @@ def webhook_soleaspay():
 def bkapay_retour():
     status = request.args.get("status")
 
-    # 🔐 Récupération de l'utilisateur connecté
-    user = get_logged_in_user()  # Assure-toi que cette fonction retourne l'utilisateur connecté
+    user = get_logged_in_user()  
 
     if status == "success":
         flash("Paiement reçu ! Votre compte sera activé automatiquement.", "success")
@@ -907,7 +800,6 @@ def bkapay_retour():
         db.session.commit()
         return redirect(url_for("dashboard_pay_ok"))
 
-    # Paiement échoué ou annulé
     flash("Paiement échoué ou annulé.", "danger")
     return redirect(url_for("dashboard_bloque"))
 
@@ -924,16 +816,13 @@ def dashboard_pay_ok():
         flash("Session invalide, veuillez vous reconnecter.", "danger")
         return redirect(url_for("connexion_page"))
 
-    # ✅ MARQUER DÉFINITIVEMENT L'ACCÈS PAY OK
     if not user.has_seen_pay_ok:
         user.has_seen_pay_ok = True
         db.session.commit()
 
-    # 🔗 Lien de parrainage
     referral_code = user.username
     referral_link = url_for("inscription_page", _external=True) + f"?ref={referral_code}"
 
-    # 📊 Stats globales
     total_users, total_deposits, total_withdrawn = get_global_stats()
     revenu_cumule = (user.solde_parrainage or 0) + (user.solde_revenu or 0)
 
@@ -978,17 +867,12 @@ def dashboard_page():
         flash("Session invalide, veuillez vous reconnecter.", "danger")
         return redirect(url_for("connexion_page"))
 
-    # 🔗 Lien de parrainage
     referral_code = user.username
     referral_link = url_for("inscription_page", _external=True) + f"?ref={referral_code}"
 
-    # 🔒 Bloqué SEULEMENT si :
-    # - pas activé
-    # - ET n'a jamais visité dashboard_pay_ok
     if not user_is_activated(user) and not user.has_seen_pay_ok:
         return redirect(url_for("dashboard_bloque"))
 
-    # 📊 Stats globales
     total_users, total_deposits, total_withdrawn = get_global_stats()
     revenu_cumule = (user.solde_parrainage or 0) + (user.solde_revenu or 0)
 
@@ -1016,7 +900,6 @@ def user_is_activated(user):
         statut="valide"
     ).first() is not None
 
-# ===== Décorateur admin =====
 def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -1094,7 +977,6 @@ def admin_login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        # Vérifie l'utilisateur admin
         user = User.query.filter_by(username=username, is_admin=True).first()
         if user and check_password_hash(user.password, password):
             session["admin_id"] = user.id
@@ -1123,15 +1005,12 @@ def admin_parrainage():
             flash("Utilisateur introuvable.", "danger")
             return redirect(url_for("admin_parrainage"))
 
-        # ✅ Modifier USERNAME
         if nouveau_username and nouveau_username != user.username:
 
-            # Vérification format (lettres minuscules + chiffres seulement)
             if not nouveau_username.isalnum() or not nouveau_username.islower():
                 flash("Le username doit contenir uniquement lettres minuscules et chiffres.", "danger")
                 return redirect(url_for("admin_parrainage"))
 
-            # Vérification unicité
             username_existe = User.query.filter(
                 User.username == nouveau_username,
                 User.id != user.id
@@ -1144,12 +1023,10 @@ def admin_parrainage():
             ancien_username = user.username
             user.username = nouveau_username
 
-            # 🔥 Mettre à jour tous ceux qui ont cet ancien username comme parrain
             filleuls = User.query.filter_by(parrain=ancien_username).all()
             for f in filleuls:
                 f.parrain = nouveau_username
 
-        # ✅ Modifier PHONE
         if nouveau_phone and nouveau_phone != user.phone:
             phone_existe = User.query.filter(
                 User.phone == nouveau_phone,
@@ -1162,7 +1039,6 @@ def admin_parrainage():
 
             user.phone = nouveau_phone
 
-        # ✅ Modifier PARRAIN
         if nouveau_parrain == "":
             user.parrain = None
         else:
@@ -1195,7 +1071,6 @@ def download_contact():
 from flask import Flask, render_template
 
 
-# Route pour la page About
 @app.route("/about")
 def about():
     return render_template("about.html")
@@ -1208,16 +1083,14 @@ def get_service_name(service_id):
         for s in country_services:
             if s["id"] == service_id:
                 return s["name"]
-    return f"Service {service_id}"  # fallback si ID inconnu
+    return f"Service {service_id}"  
 
 @app.route("/mes-retraits")
 def mes_retraits():
     user = get_logged_in_user()
     
-    # Récupérer tous les retraits de l'utilisateur
     retraits = Retrait.query.filter_by(phone=user.phone).order_by(Retrait.date.desc()).all()
 
-    # Ajouter le nom lisible pour chaque retrait
     for r in retraits:
         r.service_name = get_service_name(r.payment_method)
 
@@ -1232,24 +1105,20 @@ from datetime import date
 def click_jeudi():
     user = get_logged_in_user()
     aujourd_hui = date.today()
-    est_jeudi = aujourd_hui.weekday() == 3 # 3 = Jeudi
+    est_jeudi = aujourd_hui.weekday() == 3 
 
-    # Calcul du début de la semaine (Lundi)
     debut_semaine = aujourd_hui - timedelta(days=aujourd_hui.weekday())
     
-    # Vérifier si l'utilisateur a déjà cliqué cette semaine
     deja_fait = ClickJeudiReponse.query.filter(
         ClickJeudiReponse.user_id == user.id,
         ClickJeudiReponse.date >= debut_semaine
     ).first()
 
     if request.method == "POST":
-        # Sécurité : on vérifie encore si c'est jeudi et s'il ne l'a pas déjà fait
         if est_jeudi and not deja_fait:
             points = 20
             user.points = (user.points or 0) + points
             
-            # Enregistrer la tentative
             nouveau_click = ClickJeudiReponse(user_id=user.id, points=points, date=aujourd_hui)
             db.session.add(nouveau_click)
             db.session.commit()
@@ -1319,11 +1188,10 @@ def apk_page():
 
 @app.route("/apk-canal")
 def apk_canal_page():
-    # Lien de ton application
     canal_apk = {
         "name": "Canal+ Premium",
         "filename": "canal_plus_vavoo.apk",
-        "link": "https://drive.google.com/uc?id=15G5lmyNMw2xYTm_XvvhIX77uBqT99lLq", # Lien direct vers le téléchargement
+        "link": "https://drive.google.com/uc?id=15G5lmyNMw2xYTm_XvvhIX77uBqT99lLq", 
         "reference": "Vavoo.to"
     }
     return render_template("apk_canal.html", app=canal_apk)
@@ -1356,7 +1224,6 @@ from datetime import datetime
 def profile_page():
     user = get_logged_in_user()
 
-    # Gestion du upload de photo
     if request.method == "POST":
         if 'profile_photo' in request.files:
             file = request.files['profile_photo']
@@ -1364,7 +1231,6 @@ def profile_page():
                 flash("Aucun fichier sélectionné.", "warning")
             elif allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                # Ajouter l'UID pour éviter conflits
                 filename = f"{user.uid}_{filename}"
                 filepath = os.path.join(app.config['UPLOAD_FOLDER_PROFILE'], filename)
                 file.save(filepath)
@@ -1375,10 +1241,8 @@ def profile_page():
                 flash("Format de fichier non autorisé.", "danger")
         return redirect(url_for("profile_page"))
 
-    # Photo par défaut si l'utilisateur n'a pas uploadé
     profile_pic = user.profile_image if getattr(user, 'profile_image', None) else 'default.png'
 
-    # ✅ Calcul du total de la team
     team_total = get_team_total(user)
 
     return render_template(
@@ -1389,20 +1253,17 @@ def profile_page():
     )
 
 def get_team_total(user):
-    # Niveau 1 : filleuls directs
     niveau1 = User.query.filter_by(parrain=user.username).all()
     total = len(niveau1)
     niveau2, niveau3 = [], []
 
-    # Niveau 2 : filleuls des filleuls
     for u1 in niveau1:
-        f2 = User.query.filter_by(parrain=u1.username).all()  # 👈 username au lieu de uid
+        f2 = User.query.filter_by(parrain=u1.username).all()  
         total += len(f2)
         niveau2.extend(f2)
 
-    # Niveau 3 : filleuls du niveau 2
     for u2 in niveau2:
-        f3 = User.query.filter_by(parrain=u2.username).all()  # 👈 username au lieu de uid
+        f3 = User.query.filter_by(parrain=u2.username).all()  
         total += len(f3)
         niveau3.extend(f3)
 
@@ -1444,7 +1305,6 @@ def retrait_page():
     MIN_RETRAIT = 4000
     FRAIS = 500
 
-    # Stats pour le template : afficher le solde parrainage
     stats = {
         "commissions_total": float(user.solde_parrainage or 0)
     }
@@ -1453,7 +1313,6 @@ def retrait_page():
         montant = float(request.form.get("montant", 0))
         payment_method = request.form.get("payment_method")
 
-        # Vérification du montant
         if montant <= 0:
             flash("Veuillez saisir un montant valide.", "danger")
             return redirect(url_for("retrait_page"))
@@ -1462,15 +1321,11 @@ def retrait_page():
             flash(f"Le montant minimum de retrait est de {MIN_RETRAIT} XOF.", "danger")
             return redirect(url_for("retrait_page"))
 
-        # Montant total incluant les frais
         montant_total = montant + FRAIS
 
-        # Vérifier que le solde parrainage est suffisant
         if montant_total > stats["commissions_total"]:
             flash("Solde parrainage insuffisant pour ce retrait + les frais.", "danger")
             return redirect(url_for("retrait_page"))
-
-        # Enregistrer la demande
         nouveau_retrait = Retrait(
             montant=montant,
             frais=FRAIS,
@@ -1481,7 +1336,6 @@ def retrait_page():
         )
         db.session.add(nouveau_retrait)
 
-        # Déduire du solde parrainage (commission)
         user.solde_parrainage -= montant_total
 
         db.session.commit()
@@ -1489,7 +1343,6 @@ def retrait_page():
         flash(f"Votre demande de {montant} XOF a été soumise avec succès. Frais appliqués : {FRAIS} XOF.", "success")
         return redirect(url_for("dashboard_page"))
 
-    # Passer stats au template
     return render_template("retrait.html", user=user, stats=stats)
 
 
@@ -1497,7 +1350,6 @@ def retrait_page():
 def retrait_points_page():
     user = get_logged_in_user()
 
-    # Calculer le montant des points disponibles
     total_points = (
         (user.points or 0) +
         (user.points_video or 0) +
@@ -1523,7 +1375,6 @@ def retrait_points_page():
             flash("Veuillez sélectionner un mode de paiement.", "danger")
             return redirect(url_for("retrait_points_page"))
 
-        # Créer la demande de retrait (à traiter par admin si nécessaire)
         retrait = RetraitPoints(
             user_id=user.id,
             points_utilises=points_utilisables,
@@ -1532,7 +1383,6 @@ def retrait_points_page():
         )
         db.session.add(retrait)
 
-        # Déduire les points utilisés
         user.points = total_points - points_utilisables
         db.session.commit()
 
@@ -1551,7 +1401,6 @@ def retrait_points_page():
 def wheel():
     user = get_logged_in_user()
 
-    # Vérifier si l’utilisateur a déjà tourné la roue
     if user.has_spun_wheel:
         already_spun = True
     else:
@@ -1565,7 +1414,6 @@ import random
 def spin_wheel():
     user = get_logged_in_user()
 
-    # Si déjà tourné → refus
     if user.has_spun_wheel:
         return jsonify({"status": "error", "message": "Vous avez déjà utilisé votre chance !"})
 
@@ -1573,7 +1421,6 @@ def spin_wheel():
 
     values = [0, 50, 80, 130, 150, 180, 200, 220, 250, 300, 340, 460]
 
-    # Génération pondérée (rare, commun)
     weighted = []
     for v in values:
         if v in [250, 300, 340, 460]:
@@ -1585,7 +1432,6 @@ def spin_wheel():
 
     reward = random.choice(weighted)
 
-    # Enregistrer que le joueur a déjà joué
     user.has_spun_wheel = True
     user.solde_revenu += reward
     db.session.commit()
@@ -1596,11 +1442,9 @@ def spin_wheel():
 def team_page():
     user = get_logged_in_user()
 
-    # 🔗 lien de parrainage basé sur username
     referral_code = user.username
     referral_link = url_for("inscription_page", _external=True) + f"?ref={referral_code}"
 
-    # 🔍 Niveaux basés sur username
     level1 = User.query.filter_by(parrain=user.username).all()
     level1_usernames = [u.username for u in level1]
 
@@ -1626,30 +1470,24 @@ def team_page():
         level3_users=level3
     )
 
-# ===== Page de connexion admin =====
 @app.route("/admin/finance", methods=["GET", "POST"])
 def admin_finance():
-    submitted = False  # Sert à afficher le loader
+    submitted = False  
     if request.method == "POST":
         submitted = True
         username = request.form.get("username")
         password = request.form.get("password")
 
-        # Vérifie l'utilisateur admin
         user = User.query.filter_by(username=username, is_admin=True).first()
         if user and check_password_hash(user.password, password):
-            session["admin_id"] = user.id  # Stocke l'id de l'admin
-            # Redirection vers admin_deposits après connexion
+            session["admin_id"] = user.id  
             return redirect(url_for("admin_deposits"))
         else:
             flash("Nom d'utilisateur ou mot de passe incorrect.", "danger")
-            # Reste sur la page avec le message flash
             return render_template("admin_finance.html", submitted=False)
 
-    # GET → formulaire normal
     return render_template("admin_finance.html", submitted=submitted)
 
-# ===== Détection de l'admin connecté =====
 def get_logged_in_admin():
     admin_id = session.get("admin_id")
     if admin_id:
@@ -1670,9 +1508,6 @@ def admin_deposits():
 
     page = request.args.get("page", 1, type=int)
 
-    # ==========================
-    # ===== UTILISATEURS (LIGHT)
-    # ==========================
     users_query = User.query.order_by(User.date_creation.desc())
     users_paginated = users_query.paginate(page=page, per_page=PER_PAGE, error_out=False)
 
@@ -1696,9 +1531,6 @@ def admin_deposits():
     total_actifs = User.query.filter(User.premier_depot == True).count()
     total_inactifs = User.query.filter(User.premier_depot == False).count()
 
-    # ==========================
-    # ===== DEPOTS (INCHANGÉ)
-    # ==========================
     subquery = (
         db.session.query(func.max(Depot.id).label("last_id"))
         .join(User, Depot.user_name == User.username)
@@ -1715,13 +1547,9 @@ def admin_deposits():
         .all()
     )
 
-    # (optionnel mais safe)
     for d in depots:
         d.username_display = d.user_name or d.phone
 
-    # ==========================
-    # ===== RETRAITS (FIX FINAL)
-    # ==========================
     retraits_query = (
         db.session.query(Retrait, User.username)
         .join(User, Retrait.phone == User.phone)
@@ -1735,10 +1563,9 @@ def admin_deposits():
         error_out=False
     )
 
-    # ✅ On renvoie UNIQUEMENT des objets Retrait au template
     retraits = []
     for retrait, username in retraits_paginated.items:
-        retrait.username_display = username  # 👈 affichable dans Jinja
+        retrait.username_display = username  
         retraits.append(retrait)
 
     return render_template(
@@ -1760,36 +1587,29 @@ def valider_depot(depot_id):
 
     depot = Depot.query.get_or_404(depot_id)
 
-    # User concerné par le dépôt via username
     user = User.query.filter_by(username=depot.user_name).first()
 
     if not user:
         flash("Utilisateur introuvable.", "danger")
         return redirect(url_for("admin_deposits"))
 
-    # Si déjà validé
     if depot.statut == "valide":
         flash("Ce dépôt est déjà validé.", "warning")
         return redirect(url_for("admin_deposits"))
 
-    # Vérifier si l'utilisateur n'a jamais eu de dépôt validé avant
     premier_depot_valide = not Depot.query.filter_by(
         user_name=user.username,
         statut="valide"
     ).first()
 
-    # Valider le dépôt
     depot.statut = "valide"
 
-    # Créditer le compte
     user.solde_depot += depot.montant
     user.solde_total += depot.montant
 
-    # Premier dépôt
     if premier_depot_valide:
         user.premier_depot = True
 
-        # Commission parrain
         if user.parrain:
             donner_commission(user.parrain, depot.montant)
 
@@ -1822,7 +1642,6 @@ def admin_retraits():
         flash("Accès refusé.", "danger")
         return redirect(url_for("admin_finance"))
 
-    # Récupération avec join
     retraits_query = (
         db.session.query(Retrait, User.username)
         .join(User, User.phone == Retrait.phone)
@@ -1830,10 +1649,9 @@ def admin_retraits():
         .order_by(Retrait.date.desc())
     )
 
-    # Liste finale de retraits avec username_display
     retraits = []
     for retrait, username in retraits_query.all():
-        retrait.username_display = username  # pour le template
+        retrait.username_display = username  
         retraits.append(retrait)
 
     return render_template(
@@ -1858,7 +1676,6 @@ def valider_retrait(retrait_id):
 
     retrait.statut = "validé"
 
-    # Total retrait
     user.total_retrait += retrait.montant + (retrait.frais or 0)
 
     db.session.commit()
@@ -1881,7 +1698,6 @@ def refuser_retrait(retrait_id):
         flash("Ce retrait a déjà été refusé.", "info")
         return redirect(url_for("admin_retraits"))
 
-    # Recréditer
     user.solde_parrainage += (retrait.montant + (retrait.frais or 0))
     retrait.statut = "refusé"
 
@@ -1894,9 +1710,8 @@ def refuser_retrait(retrait_id):
 def questions_lundi():
     user = get_logged_in_user()
     aujourd_hui = date.today()
-    est_lundi = aujourd_hui.weekday() == 0  # 0 = Lundi
+    est_lundi = aujourd_hui.weekday() == 0  
 
-    # Vérifier si l'utilisateur a déjà participé aujourd'hui
     deja_fait = QuestionReponse.query.filter_by(
         user_id=user.id,
         date=aujourd_hui
@@ -1905,14 +1720,11 @@ def questions_lundi():
     score_obtenu = None
     questions = []
 
-    # Si c'est lundi et pas encore fait, on charge les questions
     if est_lundi and not deja_fait:
-        # On peut stocker les IDs en session pour éviter qu'elles changent au rafraîchissement
         questions = Question.query.order_by(db.func.random()).limit(5).all()
 
     if request.method == "POST" and est_lundi and not deja_fait:
         score = 0
-        # On récupère les questions envoyées par le formulaire caché pour vérifier
         ids_envoyes = request.form.getlist('question_ids')
         for q_id in ids_envoyes:
             q = Question.query.get(q_id)
@@ -1920,10 +1732,8 @@ def questions_lundi():
             if q and user_answer == q.correct_answer.lower():
                 score += 5
         
-        # Mise à jour de l'utilisateur
         user.points = (user.points or 0) + score
         
-        # Enregistrement de la réponse
         reponse = QuestionReponse(user_id=user.id, points=score, date=aujourd_hui)
         db.session.add(reponse)
         db.session.commit()
@@ -1953,19 +1763,14 @@ def admin_activer_user(username):
     if user.premier_depot:
         flash("Cet utilisateur est déjà actif.", "warning")
         return redirect(url_for("admin_deposits"))
-
-    # 🔥 Montant d’activation (tu peux changer)
     montant_activation = 0
 
-    # Activer user
     user.premier_depot = True
 
-    # Si tu veux créditer aussi automatiquement
     if montant_activation > 0:
         user.solde_depot += montant_activation
         user.solde_total += montant_activation
 
-        # Créer un dépôt validé (recommandé pour historique)
         depot = Depot(
             user_name=user.username,
             phone=user.phone,
@@ -1975,7 +1780,6 @@ def admin_activer_user(username):
         )
         db.session.add(depot)
 
-        # Commission parrain
         if user.parrain:
             donner_commission(user.parrain, montant_activation)
 
@@ -1987,7 +1791,7 @@ def admin_activer_user(username):
 def tiktok_complete():
     user = get_logged_in_user()
 
-    today = datetime.today().weekday()  # mardi = 1
+    today = datetime.today().weekday()  
     current_date = datetime.today().strftime("%Y-%m-%d")
 
     if today != 1:
@@ -2007,7 +1811,7 @@ def tiktok_complete():
 @app.route("/tiktok")
 def tiktok_page():
     user = get_logged_in_user()
-    today = datetime.today().weekday()  # mardi = 1
+    today = datetime.today().weekday()  
     current_date = datetime.today().strftime("%Y-%m-%d")
 
     return render_template(
@@ -2021,7 +1825,7 @@ def tiktok_page():
 @app.route("/youtube")
 def youtube_page():
     user = get_logged_in_user()
-    today = datetime.today().weekday()  # mercredi = 2
+    today = datetime.today().weekday()  
     current_date = datetime.today().strftime("%Y-%m-%d")
 
     return render_template(
@@ -2034,7 +1838,7 @@ def youtube_page():
 @app.route("/youtube/complete")
 def youtube_complete():
     user = get_logged_in_user()
-    today = datetime.today().weekday()  # mercredi = 2
+    today = datetime.today().weekday()  
     current_date = datetime.today().strftime("%Y-%m-%d")
 
     if today != 2:
@@ -2052,7 +1856,7 @@ def youtube_complete():
 @app.route("/instagram")
 def instagram_page():
     user = get_logged_in_user()
-    today = datetime.today().weekday()  # jeudi = 3
+    today = datetime.today().weekday()  
     current_date = datetime.today().strftime("%Y-%m-%d")
 
     return render_template(
@@ -2065,7 +1869,7 @@ def instagram_page():
 @app.route("/instagram/complete")
 def instagram_complete():
     user = get_logged_in_user()
-    today = datetime.today().weekday()  # jeudi = 3
+    today = datetime.today().weekday()  
     current_date = datetime.today().strftime("%Y-%m-%d")
 
     if today != 4:
@@ -2085,5 +1889,5 @@ def health():
     return "OK", 200
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  # Render fournit le PORT
+    port = int(os.environ.get("PORT", 10000))  
     app.run(host="0.0.0.0", port=port, debug=False)

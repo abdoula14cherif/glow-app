@@ -1869,6 +1869,9 @@ def instagram_complete():
 
     return jsonify({"status": "done", "message": "Vous avez déjà obtenu vos points aujourd’hui."})
 
+@app.route("/")
+def index():
+    return redirect(url_for("connexion_page"))
 @app.route("/health")
 def health():
     return "OK", 200

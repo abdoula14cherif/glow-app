@@ -163,6 +163,7 @@ class Depot(db.Model):
     montant = db.Column(db.Float, nullable=False)
 
     reference = db.Column(db.String(200), nullable=True)
+    capture = db.Column(db.String(200), nullable=True)
 
     statut = db.Column(db.String(20), default="pending")
 
@@ -652,44 +653,28 @@ def dashboard_bloque():
         db.session.add(new_depot)
         db.session.commit()
 
-        payload = {
-            "wallet": phone,  
-            "amount": amount,
-            "currency": "XOF",
-            "order_id": f"GLOW-{new_depot.id}",
-            "description": f"Activation Glow {user.username} DEPOT_ID={new_depot.id}",
-            "payer": fullname,
-            "payerEmail": user.email,
-            "successUrl": "https://glowthaffiliate.com/dashboard/pay/ok",
-            "failureUrl": "https://glowthaffiliate.com/dashboard_bloque",
-        }
+        capture = request.files.get("capture")
 
-        headers = {
-            "x-api-key": SOLEAS_API_KEY,
-            "operation": "2",
-            "service": str(service["id"]),
-            "Content-Type": "application/json"
-        }
-
-        try:
-            response = requests.post(
-                "https://soleaspay.com/api/agent/bills/v3",
-                headers=headers,
-                json=payload,
-                timeout=30
-            )
-            result = response.json()
-        except Exception as e:
-            flash(f"Erreur de connexion au serveur de paiement : {e}", "danger")
+        if not capture or capture.filename == "":
+            flash("Veuillez joindre une capture d'écran du paiement.", "danger")
             return redirect(url_for("dashboard_bloque"))
 
-        if not result.get("succès"):
-            flash(result.get("message", "Erreur paiement"), "danger")
+        if not allowed_file(capture.filename):
+            flash("Format non autorisé. Utilisez PNG, JPG ou JPEG.", "danger")
             return redirect(url_for("dashboard_bloque"))
 
-        flash("Veuillez confirmer le paiement sur votre téléphone.", "info")
+        ext = capture.filename.rsplit(".", 1)[1].lower()
+        filename = secure_filename(
+            f"capture_{user.username}_{int(datetime.utcnow().timestamp())}.{ext}"
+        )
+        os.makedirs("static/uploads/captures", exist_ok=True)
+        capture.save(os.path.join("static/uploads/captures", filename))
+
+        new_depot.capture = filename
+        db.session.commit()
+
+        flash("✅ Paiement soumis ! L'équipe va valider votre compte sous peu.", "success")
         return redirect(url_for("dashboard_bloque"))
-
     return render_template(
         "dashboard_bloque.html",
         user=user,

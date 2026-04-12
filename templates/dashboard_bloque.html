@@ -118,7 +118,62 @@
 
         <h1>Activation Requise</h1>
         <p class="subtitle">Veuillez finaliser le dépôt de garantie de 3800 FCFA pour activer votre compte .</p>
+        <!-- MOYENS DE PAIEMENT -->
+        <div style="margin-bottom: 20px;">
 
+            <!-- TABS -->
+            <div style="display:flex; gap:8px; margin-bottom:15px;">
+                <button type="button" onclick="showTab('mobile')" id="tab-mobile" style="flex:1; padding:10px; border-radius:12px; border:none; background:#5D5FEF; color:white; font-weight:800; font-size:12px; cursor:pointer;">
+                    📱 Mobile Money
+                </button>
+                <button type="button" onclick="showTab('crypto')" id="tab-crypto" style="flex:1; padding:10px; border-radius:12px; border:2px solid #5D5FEF; background:white; color:#5D5FEF; font-weight:800; font-size:12px; cursor:pointer;">
+                    💎 Crypto
+                </button>
+            </div>
+
+            <!-- MOBILE MONEY -->
+            <div id="tab-mobile-content">
+                <p style="font-size:11px; color:#718096; font-weight:700; margin-bottom:10px; text-transform:uppercase;">Envoyez 3800 FCFA au numéro ci-dessous</p>
+
+                <div onclick="copyText('22893610941', this)" style="background:#1A202C; border-radius:14px; padding:14px; margin-bottom:10px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span style="font-size:10px; color:#A0AEC0; font-weight:700; text-transform:uppercase;">T-Money — Abalo</span>
+                        <p style="color:white; font-weight:800; font-size:18px; margin:3px 0; letter-spacing:1px;">+228 93 61 09 41</p>
+                    </div>
+                    <span style="background:#5D5FEF; color:white; border-radius:8px; padding:6px 12px; font-size:11px; font-weight:800;">Copier</span>
+                </div>
+
+                <div onclick="copyText('22897839055', this)" style="background:#1A202C; border-radius:14px; padding:14px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span style="font-size:10px; color:#A0AEC0; font-weight:700; text-transform:uppercase;">Flooz — Barry Laribou Sambo</span>
+                        <p style="color:white; font-weight:800; font-size:18px; margin:3px 0; letter-spacing:1px;">+228 97 83 90 55</p>
+                    </div>
+                    <span style="background:#5D5FEF; color:white; border-radius:8px; padding:6px 12px; font-size:11px; font-weight:800;">Copier</span>
+                </div>
+            </div>
+
+            <!-- CRYPTO -->
+            <div id="tab-crypto-content" style="display:none;">
+                <p style="font-size:11px; color:#718096; font-weight:700; margin-bottom:10px; text-transform:uppercase;">Envoyez 6.5 USDT à l'adresse ci-dessous</p>
+
+                <div onclick="copyText('0x8c5c1c327bc455f78afdb6e1c3de4451aed93af9', this)" style="background:#1A202C; border-radius:14px; padding:14px; margin-bottom:10px; cursor:pointer;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                        <span style="font-size:10px; color:#F6C90E; font-weight:800; text-transform:uppercase;">BNB Smart Chain / ERC20</span>
+                        <span style="background:#5D5FEF; color:white; border-radius:8px; padding:6px 12px; font-size:11px; font-weight:800;">Copier</span>
+                    </div>
+                    <p style="color:white; font-size:11px; word-break:break-all; margin:0;">0x8c5c1c327bc455f78afdb6e1c3de4451aed93af9</p>
+                </div>
+
+                <div onclick="copyText('TMBRFjzTE7Uffg5y7EC7sbbGCxwRaYenbB', this)" style="background:#1A202C; border-radius:14px; padding:14px; cursor:pointer;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                        <span style="font-size:10px; color:#26A17B; font-weight:800; text-transform:uppercase;">TRC20 (TRON)</span>
+                        <span style="background:#5D5FEF; color:white; border-radius:8px; padding:6px 12px; font-size:11px; font-weight:800;">Copier</span>
+                    </div>
+                    <p style="color:white; font-size:11px; word-break:break-all; margin:0;">TMBRFjzTE7Uffg5y7EC7sbbGCxwRaYenbB</p>
+                </div>
+            </div>
+
+        </div>
         <form action="{{ url_for('dashboard_bloque') }}" method="POST" class="payment-form" id="payForm" enctype="multipart/form-data>
 
             <div class="form-group">
@@ -184,6 +239,29 @@
     function selectOperator(element) {
         document.querySelectorAll('.op-item').forEach(item => item.classList.remove('active'));
         element.classList.add('active');
+    }
+    function showTab(tab) {
+        document.getElementById('tab-mobile-content').style.display = tab === 'mobile' ? 'block' : 'none';
+        document.getElementById('tab-crypto-content').style.display = tab === 'crypto' ? 'block' : 'none';
+        document.getElementById('tab-mobile').style.background = tab === 'mobile' ? '#5D5FEF' : 'white';
+        document.getElementById('tab-mobile').style.color = tab === 'mobile' ? 'white' : '#5D5FEF';
+        document.getElementById('tab-mobile').style.border = tab === 'mobile' ? 'none' : '2px solid #5D5FEF';
+        document.getElementById('tab-crypto').style.background = tab === 'crypto' ? '#5D5FEF' : 'white';
+        document.getElementById('tab-crypto').style.color = tab === 'crypto' ? 'white' : '#5D5FEF';
+        document.getElementById('tab-crypto').style.border = tab === 'crypto' ? 'none' : '2px solid #5D5FEF';
+    }
+
+    function copyText(text, el) {
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = el.querySelector('span:last-child');
+            const original = btn.innerHTML;
+            btn.innerHTML = '✅ Copié !';
+            btn.style.background = '#27AE60';
+            setTimeout(() => {
+                btn.innerHTML = original;
+                btn.style.background = '#5D5FEF';
+            }, 2000);
+        });
     }
     function previewCapture(input) {
         const preview = document.getElementById('previewImg');

@@ -648,11 +648,7 @@ def dashboard_bloque():
             country=country_code,   
             montant=amount,
             statut="en_attente",
-            email=user.email
-        )
-        db.session.add(new_depot)
-        db.session.commit()
-
+            email=user.email)
         capture = request.files.get("capture")
 
         if not capture or capture.filename == "":

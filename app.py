@@ -666,6 +666,7 @@ def dashboard_bloque():
         os.makedirs("static/uploads/captures", exist_ok=True)
         capture.save(os.path.join("static/uploads/captures", filename))
 
+        db.session.add(new_depot)
         new_depot.capture = filename
         db.session.commit()
 
